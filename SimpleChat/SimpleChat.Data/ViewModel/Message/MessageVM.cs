@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace NGA.Data.ViewModel.Message
+namespace SimpleChat.Data.ViewModel.Message
 {
     public class MessageVM : TableEntityVM 
     {

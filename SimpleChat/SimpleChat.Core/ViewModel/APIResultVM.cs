@@ -5,12 +5,16 @@ using System.Text.Json.Serialization;
 
 namespace SimpleChat.Core.ViewModel
 {
-    public interface IIsResultVM
+    public interface IResultVM
     {
+        Guid? RecId { get; set; }
+
+        object Rec { get; set; }
         bool IsSuccessful { get; set; }
+        string StatusCode { get; set; }
     }
 
-    public class APIResultVM : IIsResultVM
+    public class APIResultVM : IResultVM
     {
         public Guid? RecId { get; set; }
 

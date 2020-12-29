@@ -8,31 +8,25 @@ namespace SimpleChat.Core.Helper
 {
     public static class APIResult
     {
-        public static APIResultVM CreateVM(bool isSuccessful = false, Guid? recId = null, List<string> messages = null)
+        public static APIResultVM CreateVM(bool isSuccessful = false, Guid? recId = null, string statusCode = "")
         {
-            if (messages == null)
-                messages = new List<string>();
-
             var vm = new APIResultVM()
             {
                 IsSuccessful = isSuccessful,
                 RecId = recId,
-                Messages = messages
+                StatusCode = statusCode,
             };
             return vm;
         }
 
-        public static APIResultVM CreateVMWithRec<T>(T rec, bool isSuccessful = false, Guid? recId = null, List<string> messages = null)
+        public static APIResultVM CreateVMWithRec<T>(T rec, bool isSuccessful = false, Guid? recId = null, string statusCode = "")
         {
-            if (messages == null)
-                messages = new List<string>();
-
             var vm = new APIResultVM()
             {
                 IsSuccessful = isSuccessful,
                 RecId = recId,
+                StatusCode = statusCode,
                 Rec = rec,
-                Messages = messages
             };
 
             return vm;

@@ -6,12 +6,12 @@ namespace SimpleChat.Core.ViewModel
 {
     public interface IUpdateVM
     {
-        DateTime? UpdateDT { get; set; }
-        Guid UpdateBy { get; set; }
+        //DateTime? UpdateDT { get; set; }
+        //Guid UpdateBy { get; set; }
     }
     public class UpdateVM : IUpdateVM
     {
-        public DateTime? UpdateDT { get; set; }
-        public Guid UpdateBy { get; set; }
+        //public DateTime? UpdateDT { get; set; }
+        //public Guid UpdateBy { get; set; }
     }
 }

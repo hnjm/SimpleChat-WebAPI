@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NGA.Data.ViewModel
+namespace SimpleChat.Data.ViewModel
 {
     public class APIRouteVM
     {

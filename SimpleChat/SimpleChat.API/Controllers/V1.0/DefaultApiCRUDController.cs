@@ -34,13 +34,13 @@ namespace NGA.MonolithAPI.Controllers.V1
                 var result = _service.GetAll();
 
                 if (result == null)
-                    return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.WRG01001));
+                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
 
                 return new JsonResult(new List<G>());
             }
             catch (Exception ex)
             {
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, AppStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
             }
         }
 
@@ -50,18 +50,18 @@ namespace NGA.MonolithAPI.Controllers.V1
             try
             {
                 if (Validation.IsNullOrEmpty(id))
-                    return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.WRG01002));
+                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01002));
 
                 var result = await _service.GetByIdAsync(id);
 
                 if (result == null)
-                    return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.WRG01001));
+                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
 
                 return new JsonResult(APIResult.CreateVMWithRec<G>(result, true, result.Id));
             }
             catch (Exception ex)
             {
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, AppStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
             }
         }
 
@@ -73,7 +73,7 @@ namespace NGA.MonolithAPI.Controllers.V1
             try
             {
                 if (Validation.IsNull(model))
-                    APIResult.CreateVM(false, null, AppStatusCode.WRG01001);
+                    APIResult.CreateVM(false, null, APIStatusCode.WRG01001);
 
                 result = await _service.Add(model);
 
@@ -96,7 +96,7 @@ namespace NGA.MonolithAPI.Controllers.V1
             try
             {
                 if (Validation.IsNull(model))
-                    APIResult.CreateVM(false, id, AppStatusCode.WRG01001);
+                    APIResult.CreateVM(false, id, APIStatusCode.WRG01001);
 
                 result = await _service.Update(id, model);
 
@@ -119,7 +119,7 @@ namespace NGA.MonolithAPI.Controllers.V1
             try
             {
                 if (id == null || id == Guid.Empty)
-                    APIResult.CreateVM(false, null, AppStatusCode.WRG01001);
+                    APIResult.CreateVM(false, null, APIStatusCode.WRG01001);
 
                 result = await _service.Delete(id);
 

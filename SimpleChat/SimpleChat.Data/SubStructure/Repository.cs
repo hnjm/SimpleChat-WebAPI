@@ -23,6 +23,7 @@ namespace SimpleChat.Data.SubStructure
     public class Repository<T> : IRepository<T>
           where T : BaseEntity, IBaseEntity, new()
     {
+        //TODO: LOGGING
         private readonly ILogger<IRepository<T>> _logger;
         private SimpleChatDbContext con;
         public Repository(SimpleChatDbContext context, ILogger<IRepository<T>> logger)

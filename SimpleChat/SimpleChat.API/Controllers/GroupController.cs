@@ -30,13 +30,13 @@ namespace NGA.MonolithAPI.Controllers.V2
                 var result = _service.GetByUserId(userId);
 
                 if (result == null)
-                    return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.WRG01001));
+                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
 
                 return new JsonResult(result);
             }
             catch (Exception ex)
             {
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, AppStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
             }
         }
 
@@ -48,13 +48,13 @@ namespace NGA.MonolithAPI.Controllers.V2
                 var result = _service.GetUsers(groupId);
 
                 if (result == null)
-                    return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.WRG01001));
+                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
 
                 return new JsonResult(result);
             }
             catch (Exception ex)
             {
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, AppStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
             }
         }
     }

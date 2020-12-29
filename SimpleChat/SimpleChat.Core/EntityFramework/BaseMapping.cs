@@ -7,7 +7,7 @@ namespace SimpleChat.Core.EntityFramework
 {
     public interface IBaseDomainMapping
     {
-        void Set(ref ModelBuilder modelBuilder);
+        //void Set(ref ModelBuilder modelBuilder);
     }
 
     public abstract class BaseDomainMapping : IBaseDomainMapping

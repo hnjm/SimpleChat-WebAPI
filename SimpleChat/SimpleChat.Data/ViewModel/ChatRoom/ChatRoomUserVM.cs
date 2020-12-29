@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace NGA.Data.ViewModel.ChatRoom
+namespace SimpleChat.Data.ViewModel.ChatRoom
 {
     public class ChatRoomUserVM : BaseVM 
     {

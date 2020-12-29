@@ -57,7 +57,7 @@ namespace NGA.MonolithAPI.Controllers.V2
             }
             catch (Exception ex)
             {
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, AppStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
             }
         }
 
@@ -69,13 +69,13 @@ namespace NGA.MonolithAPI.Controllers.V2
                 var result = _service.GetUserList();
 
                 if (result == null)
-                    return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.WRG01001));
+                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
 
                 return new JsonResult(result);
             }
             catch (Exception ex)
             {
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, AppStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
             }
         }
 
@@ -85,18 +85,18 @@ namespace NGA.MonolithAPI.Controllers.V2
             try
             {
                 if (Validation.IsNullOrEmpty(id))
-                    return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.WRG01002));
+                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01002));
 
                 var result = _service.GetById(id);
 
                 if (result == null)
-                    return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.WRG01001));
+                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
 
                 return new JsonResult(APIResult.CreateVMWithRec<User>(result, true, result.Id));
             }
             catch (Exception ex)
             {
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, AppStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
             }
         }
 
@@ -119,18 +119,18 @@ namespace NGA.MonolithAPI.Controllers.V2
                     {
                         result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.PasswordHash);
                         if (!result.Succeeded)
-                            return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.WRG01001));
+                            return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
                     }
                     result = await _userManager.UpdateAsync(user);
                     if (!result.Succeeded)
-                        return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.WRG01001));                    
+                        return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));                    
                 }
 
                 return new JsonResult(APIResult.CreateVM(true, user.Id));
             }
             catch (Exception ex)
             {
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, AppStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
             }
         }
 
@@ -141,7 +141,7 @@ namespace NGA.MonolithAPI.Controllers.V2
             var loginResult = await _signInManager.PasswordSignInAsync(model.UserName, model.PasswordHash, isPersistent: false, lockoutOnFailure: false);
 
             if (!loginResult.Succeeded)
-                return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.WRG01004));
+                return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01004));
 
             var user = await _userManager.FindByNameAsync(model.UserName);
             user.LastLoginDateTime = DateTime.UtcNow;
@@ -197,9 +197,9 @@ namespace NGA.MonolithAPI.Controllers.V2
             }
             catch (Exception ex)
             {
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, AppStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
             }
-            return new JsonResult(APIResult.CreateVM(false, null, AppStatusCode.ERR01001));
+            return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.ERR01001));
         }
 
         [HttpGet]

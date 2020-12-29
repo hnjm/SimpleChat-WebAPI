@@ -14,40 +14,44 @@ using Microsoft.Extensions.Logging;
 
 namespace SimpleChat.Data.SubStructure
 {
-    public interface IBaseService<S, L, D>
-        where S : AddVM, IAddVM, new()
+    public interface IBaseService<A, U, L, D>
+        where A : AddVM, IAddVM, new()
+        where U : UpdateVM, IUpdateVM, new()
         where L : BaseVM, IBaseVM, new()
         where D : BaseEntity, IBaseEntity, new()
     {
+        IQueryable<D> Query(bool showIsDeleted = false);
         Task<bool> AnyAsync(Guid id);
         Task<bool> AnyAsync(Expression<Func<D, bool>> expr);
         Task<L> GetByIdAsync(Guid id);
         Task<IEnumerable<L>> GetAllAsync(bool asNoTracking = true);
         Task<List<L>> GetAllAsync(Expression<Func<D, bool>> expr, bool asNoTracking = true);
         IQueryable<T> GetAllAsync<T>(Expression<Func<D, bool>> expr, Expression<Func<D, T>> selector, bool asNoTracking = true);
-        Task<APIResultVM> AddAsync(S model, Guid? userId = null, bool isCommit = true);
-        Task<APIResultVM> UpdateAsync(Guid id, S model, Guid? userId = null, bool isCommit = true);
+        Task<APIResultVM> AddAsync(A model, Guid? userId = null, bool isCommit = true);
+        Task<APIResultVM> UpdateAsync(Guid id, U model, Guid? userId = null, bool isCommit = true);
         Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true);
         Task<APIResultVM> ReverseDeleteAsync(Guid id, Guid? userId, bool isCommit = true);
         Task<APIResultVM> CommitAsync();
     }
 
-    public class BaseService<S, L, D> : IBaseService<S, L, D>
-        where S : AddVM, IAddVM, new()
+    public class BaseService<A, U, L, D> : IBaseService<A, U, L, D>
+        where A : AddVM, IAddVM, new()
+        where U : UpdateVM, IUpdateVM, new()
         where L : BaseVM, IBaseVM, new()
         where D : BaseEntity, IBaseEntity, new()
     {
         protected UnitOfWork _uow;
         protected readonly IMapper _mapper;
-        protected readonly ILogger<BaseService<S, L, D>> _logger;
+        //TODO: LOGGING
+        //protected readonly ILogger<BaseService<S, L, D>> _logger;
         private readonly ILogger<IRepository<D>> _repositoryLogger;
 
-        public BaseService(UnitOfWork uow, IMapper mapper, ILogger<BaseService<S, L, D>> logger,
+        public BaseService(UnitOfWork uow, IMapper mapper, //ILogger<BaseService<S, L, D>> logger,
             ILogger<IRepository<D>> repositoryLogger)
         {
             _uow = uow;
             _mapper = mapper;
-            _logger = logger;
+            //_logger = logger;
             _repositoryLogger = repositoryLogger;
         }
 
@@ -59,6 +63,18 @@ namespace SimpleChat.Data.SubStructure
             }
         }
 
+        public IQueryable<D> Query(bool showIsDeleted = false)
+        {
+            try
+            {
+                return Repository.Query(showIsDeleted);
+            }
+            catch (Exception ex)
+            {
+                //_logger.LogError("Repository.Query", ex);
+                return null;
+            }
+        }
         public virtual async Task<bool> AnyAsync(Guid id)
         {
             try
@@ -70,7 +86,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                _logger.LogError("BaseService.AnyAsync", e);
+                //_logger.LogError("BaseService.AnyAsync", e);
                 return false;
             }
         }
@@ -85,7 +101,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                _logger.LogError("BaseService.AnyAsync", e);
+                //_logger.LogError("BaseService.AnyAsync", e);
                 return false;
             }
         }
@@ -101,7 +117,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                _logger.LogError("BaseService.GetByIdAsync", e);
+                //_logger.LogError("BaseService.GetByIdAsync", e);
                 return null;
             }
         }
@@ -118,7 +134,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                _logger.LogError("BaseService.GetAllAsync", e);
+                //_logger.LogError("BaseService.GetAllAsync", e);
                 return null;
             }
         }
@@ -135,7 +151,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                _logger.LogError("BaseService.GetAllAsync", e);
+                //_logger.LogError("BaseService.GetAllAsync", e);
                 return null;
             }
         }
@@ -154,19 +170,19 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                _logger.LogError("BaseService.GetAllAsync", e);
+                //_logger.LogError("BaseService.GetAllAsync", e);
                 return null;
             }
         }
 
 
-        public virtual async Task<APIResultVM> AddAsync(S model, Guid? userId = null, bool isCommit = true)
+        public virtual async Task<APIResultVM> AddAsync(A model, Guid? userId = null, bool isCommit = true)
         {
             try
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = _mapper.Map<S, D>(model);
+                D entity = _mapper.Map<A, D>(model);
                 if (entity.Id == null || entity.Id == Guid.Empty)
                     entity.Id = Guid.NewGuid();
 
@@ -185,11 +201,11 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                _logger.LogError("BaseService.AddAsync", e);
-                return APIResult.CreateVM(messages: new List<string>() { "An exception occured!" });
+                //_logger.LogError("BaseService.AddAsync", e);
+                return APIResult.CreateVM();
             }
         }
-        public virtual async Task<APIResultVM> UpdateAsync(Guid id, S model, Guid? userId = null, bool isCommit = true)
+        public virtual async Task<APIResultVM> UpdateAsync(Guid id, U model, Guid? userId = null, bool isCommit = true)
         {
             try
             {
@@ -197,9 +213,9 @@ namespace SimpleChat.Data.SubStructure
 
                 D entity = await _uow.Repository<D>(_repositoryLogger).GetByIDAysnc(id);
                 if (entity.IsNull())
-                    return APIResult.CreateVM(false, id, new List<string>() { ErrorMessages.RecordNotFound });
+                    return APIResult.CreateVM(false, id, ErrorMessages.RecordNotFound);
 
-                entity = _mapper.Map<S, D>(model, entity);
+                entity = _mapper.Map<U, D>(model, entity);
 
                 if (entity is ITableEntity)
                 {
@@ -216,8 +232,8 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                _logger.LogError("BaseService.UpdateAsync", e);
-                return APIResult.CreateVM(messages: new List<string>() { "An exception occured!" });
+                //_logger.LogError("BaseService.UpdateAsync", e);
+                return APIResult.CreateVM();
             }
         }
         public virtual async Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true)
@@ -228,10 +244,10 @@ namespace SimpleChat.Data.SubStructure
 
                 D entity = await _uow.Repository<D>(_repositoryLogger).GetByIDAysnc(id);
                 if (entity.IsNull())
-                    return APIResult.CreateVM(false, id, new List<string>() { ErrorMessages.RecordNotFound });
+                    return APIResult.CreateVM(false, id, ErrorMessages.RecordNotFound);
 
                 if (shouldBeOwner && (_userId == Guid.Empty || _userId != (entity as ITableEntity).CreateBy))
-                    return APIResult.CreateVM(false, id, new List<string>() { ErrorMessages.NotOwnerOfRecord });
+                    return APIResult.CreateVM(false, id, ErrorMessages.NotOwnerOfRecord);
 
                 if (entity is ITableEntity)
                 {
@@ -249,8 +265,8 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                _logger.LogError("BaseService.DeleteAsync", e);
-                return APIResult.CreateVM(messages: new List<string>() { "An exception occured!" });
+                //_logger.LogError("BaseService.DeleteAsync", e);
+                return APIResult.CreateVM();
             }
         }
         public virtual async Task<APIResultVM> ReverseDeleteAsync(Guid id, Guid? userId, bool isCommit = true)
@@ -261,7 +277,7 @@ namespace SimpleChat.Data.SubStructure
 
                 D entity = await _uow.Repository<D>(_repositoryLogger).GetByIDAysnc(id);
                 if (entity.IsNull())
-                    return APIResult.CreateVM(false, id, new List<string>() { ErrorMessages.RecordNotFound });
+                    return APIResult.CreateVM(false, id, ErrorMessages.RecordNotFound);
 
                 if (entity is ITableEntity)
                 {
@@ -279,8 +295,8 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                _logger.LogError("BaseService.ReverseDeleteAsync", e);
-                return APIResult.CreateVM(messages: new List<string>() { "An exception occured!" });
+                //_logger.LogError("BaseService.ReverseDeleteAsync", e);
+                return APIResult.CreateVM();
             }
         }
 
@@ -294,8 +310,8 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                _logger.LogError("BaseService.CommitAsync", e);
-                return APIResult.CreateVM(messages: new List<string>() { "An exception occured!" });
+                //_logger.LogError("BaseService.CommitAsync", e);
+                return APIResult.CreateVM();
             }
         }
     }
