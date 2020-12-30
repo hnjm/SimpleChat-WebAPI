@@ -28,10 +28,21 @@ namespace SimpleChat.API
         {
 
             services.AddControllers();
+
+            #region Swagger
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SimpleChat.API", Version = "v1" });
             });
+
+            #endregion
+
+            #region API Versioning
+
+            // services.AddApiVersioning
+
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
