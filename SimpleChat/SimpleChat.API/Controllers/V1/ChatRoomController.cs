@@ -12,6 +12,7 @@ using SimpleChat.Domain;
 
 namespace SimpleChat.API.Controllers.V1
 {
+    [ApiVersion("1.0")]
     public class ChatRoomController : DefaultApiCRUDController<ChatRoomAddVM, ChatRoomUpdateVM, ChatRoomVM, ChatRoom, ChatRoomService>
     {
         public ChatRoomController(ChatRoomService service, ILogger<ChatRoomController> logger)

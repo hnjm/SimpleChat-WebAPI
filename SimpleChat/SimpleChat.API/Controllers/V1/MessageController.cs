@@ -12,6 +12,7 @@ using SimpleChat.Domain;
 
 namespace SimpleChat.API.Controllers.V1
 {
+    [ApiVersion("1.0")]
     public class MessageController : DefaultApiCRUDController<MessageAddVM, MessageUpdateVM, MessageVM, Message, MessageService>
     {
         public MessageController(MessageService service, ILogger<MessageController> logger)

@@ -9,6 +9,7 @@ using SimpleChat.Data.Service;
 
 namespace SimpleChat.API.Controllers.V1
 {
+    [ApiVersion("1.0")]
     public class SearchController : DefaultApiController
     {
         private IMessageService _service;

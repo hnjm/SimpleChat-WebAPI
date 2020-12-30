@@ -11,10 +11,10 @@ using Microsoft.Extensions.Logging;
 namespace SimpleChat.API.Controllers.V1
 {
     //TODO: REFACTOR IT
-    [Authorize]
+    // [Authorize]
     //[ApiExplorerSettings(IgnoreApi = true)]
-    //[ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/[controller]/[action]")]
+    [ApiVersion("1.0")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public abstract class DefaultApiController : ControllerBase
     {

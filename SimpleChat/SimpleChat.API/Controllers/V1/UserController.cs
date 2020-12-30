@@ -23,6 +23,7 @@ using SimpleChat.Domain;
 
 namespace SimpleChat.API.Controllers.V1
 {
+    [ApiVersion("1.0")]
     public class UserController : DefaultApiController
     {
         private IConfiguration _config;
