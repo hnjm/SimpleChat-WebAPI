@@ -2,26 +2,27 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.SignalR;
-using NGA.Data;
-using NGA.Data.Service;
-using NGA.Data.ViewModel;
+using SimpleChat.Data;
+using SimpleChat.Data.Service;
+using SimpleChat.Data.ViewModel.Message;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace NGA.MonolithAPI.SignalR
+namespace SimpleChat.API.SignalR
 {
+    //TODO: REFACTOR IT
     [EnableCors("CorsPolicy")]
     [AllowAnonymous]
     public class ChatHub : Hub
     {
         internal static List<Connection> Connections = new List<Connection>();
 
-        private NGADbContext _con;
+        private SimpleChatDbContext _con;
         private IMessageService _service;
         private readonly IMapper _mapper;
-        public ChatHub(IMessageService service, IMapper mapper, NGADbContext con)
+        public ChatHub(IMessageService service, IMapper mapper, SimpleChatDbContext con)
         {
             _service = service;
             _mapper = mapper;
@@ -69,7 +70,7 @@ namespace NGA.MonolithAPI.SignalR
                 Connections.Remove(connection);
 
                 if (_con.Groups.Any(a => (a.Id == groupId && !a.IsPrivate)
-                || _con.GroupUsers.Any(x => x.GroupId == groupId && x.UserId == connection.UserId)))
+                || _con.GroupUsers.Any(x => x.ChatRoomId == groupId && x.UserId == connection.UserId)))
                 {
                     connection.GroupId = groupId;
                     Connections.Add(connection);
@@ -95,12 +96,12 @@ namespace NGA.MonolithAPI.SignalR
         public async Task SendMessage(MessageVM message)
         {
             var connection = Connections.Find(a => a.ConnectionID == Context.ConnectionId);
-            if (connection != null && connection.GroupId == message.GroupId)
+            if (connection != null && connection.GroupId == message.ChatRoomId)
             {
                 var model = _mapper.Map<MessageAddVM>(message);
-                await _service.Add(model, message.UserId);
+                await _service.AddAsync(model, message.CreateBy);
 
-                await Clients.Group(message.GroupId.ToString()).SendAsync("ReceiveMessage", message);
+                await Clients.Group(message.ChatRoomId.ToString()).SendAsync("ReceiveMessage", message);
             }
         }
 

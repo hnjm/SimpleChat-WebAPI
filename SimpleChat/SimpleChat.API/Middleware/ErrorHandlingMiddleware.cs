@@ -7,8 +7,9 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace NGA.MonolithAPI.Middleware
+namespace SimpleChat.API.Middleware
 {
+    //TODO: REFACTOR IT
     public class ErrorHandlingMiddleware
     {
         private readonly RequestDelegate next;

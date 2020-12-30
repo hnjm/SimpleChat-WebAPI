@@ -7,17 +7,20 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SimpleChat.Core;
+using SimpleChat.Core.EntityFramework;
 using SimpleChat.Core.Helper;
+using SimpleChat.Core.Validation;
 using SimpleChat.Core.ViewModel;
 using SimpleChat.Data.SubStructure;
 
-namespace NGA.MonolithAPI.Controllers.V2
+namespace SimpleChat.API.Controllers.V1
 {
-    public interface IDefaultApiCRUDController<A, U, G, S>
+    public interface IDefaultApiCRUDController<A, U, L, D, S>
             where A : AddVM, IAddVM, new()
             where U : UpdateVM, IUpdateVM, new()
-            where G : BaseVM, IBaseVM, new()
-            where S : BaseService<A, U, G>
+            where L : BaseVM, IBaseVM, new()
+            where D : BaseEntity, IBaseEntity, new()
+            where S : BaseService<A, U, L, D>, IBaseService<A, U, L, D>
     {
         JsonResult Get();
         Task<JsonResult> GetById(Guid id);
@@ -26,18 +29,19 @@ namespace NGA.MonolithAPI.Controllers.V2
         Task<JsonResult> Delete(Guid id);
     }
 
-    public abstract class DefaultApiCRUDController<A, U, G, S> : DefaultApiController
-             where A : AddVM, IAddVM, new()
-             where U : UpdateVM, IUpdateVM, new()
-             where G : BaseVM, IBaseVM, new()
-             where S : BaseService<A, U, G>
+    public abstract class DefaultApiCRUDController<A, U, L, D, S> : DefaultApiController, IDefaultApiCRUDController<A, U, L, D, S>
+            where A : AddVM, IAddVM, new()
+            where U : UpdateVM, IUpdateVM, new()
+            where L : BaseVM, IBaseVM, new()
+            where D : BaseEntity, IBaseEntity, new()
+            where S : BaseService<A, U, L, D>, IBaseService<A, U, L, D>
     {
         protected S _service;
 
-        public DefaultApiCRUDController(S service, ILogger<DefaultApiCRUDController<A, U, G, S>> logger)
+        public DefaultApiCRUDController(S service, ILogger<DefaultApiCRUDController<A, U, L, D, S>> logger)
             : base(logger)
         {
-            this._service = service;
+            _service = service;
         }
 
         [HttpGet]
@@ -45,7 +49,7 @@ namespace NGA.MonolithAPI.Controllers.V2
         {
             try
             {
-                var result = _service.GetAll();             
+                var result = _service.GetAllAsync();             
 
                 if (result == null)
                     return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
@@ -55,7 +59,7 @@ namespace NGA.MonolithAPI.Controllers.V2
             catch (Exception ex)
             {
                 _logger.LogError(ex.ToString());
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVM());
             }
         }
 
@@ -67,7 +71,7 @@ namespace NGA.MonolithAPI.Controllers.V2
         {
             try
             {
-                if (id.IsNull.IsNullOrEmpty())
+                if (id.IsEmptyGuid())
                     return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01002));
 
                 var result = await _service.GetByIdAsync(id);
@@ -75,12 +79,14 @@ namespace NGA.MonolithAPI.Controllers.V2
                 if (result == null)
                     return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
 
-                return new JsonResult(APIResult.CreateVMWithRec<G>(result, true, result.Id));
+                return new JsonResult(APIResult.CreateVMWithRec<L>(result, true, result.Id));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.ToString());
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
+                //TODO: LOGGING
+                //return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVM());
             }
         }
 
@@ -91,20 +97,17 @@ namespace NGA.MonolithAPI.Controllers.V2
 
             try
             {
-                if (Validation.IsNull(model))
+                if (model.IsNull())
                     APIResult.CreateVM(false, null, APIStatusCode.WRG01001);
 
-                result = await _service.Add(model);
+                result = await _service.AddAsync(model);
 
-                if (Validation.ResultIsNotTrue(result))
-                    return new JsonResult(result);
-
-                return new JsonResult(APIResult.CreateVM(true, result.RecId));
+                return new JsonResult(APIResult.CreateVM(result.ResultIsTrue(), result.RecId));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.ToString());
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, result.RecId)));
+                return new JsonResult(APIResult.CreateVM());
             }
         }
 
@@ -115,20 +118,17 @@ namespace NGA.MonolithAPI.Controllers.V2
 
             try
             {
-                if (Validation.IsNull(model))
+                if (model.IsNull())
                     APIResult.CreateVM(false, id, APIStatusCode.WRG01001);
 
-                result = await _service.Update(id, model);
+                result = await _service.UpdateAsync(id, model);
 
-                if (Validation.ResultIsNotTrue(result))
-                    return new JsonResult(result);
-
-                return new JsonResult(APIResult.CreateVM(true, result.RecId));
+                return new JsonResult(APIResult.CreateVM(result.ResultIsTrue(), result.RecId));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.ToString());
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, result.RecId)));
+                return new JsonResult(APIResult.CreateVM());
             }
         }
 
@@ -139,20 +139,17 @@ namespace NGA.MonolithAPI.Controllers.V2
 
             try
             {
-                if (id == null || id == Guid.Empty)
+                if (id.IsEmptyGuid())
                     APIResult.CreateVM(false, null, APIStatusCode.WRG01001);
 
-                result = await _service.Delete(id);
+                result = await _service.DeleteAsync(id);
 
-                if (Validation.ResultIsNotTrue(result))
-                    return new JsonResult(result);
-
-                return new JsonResult(APIResult.CreateVM(true, result.RecId));
+                return new JsonResult(APIResult.CreateVM(result.ResultIsTrue(), result.RecId));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.ToString());
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, result.RecId)));
+                return new JsonResult(APIResult.CreateVM());
             }
         }
     }

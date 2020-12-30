@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace NGA.MonolithAPI.Fillter
+namespace SimpleChat.API.Fillter
 {
+    //TODO: REFACTOR IT
     public class ReplaceVersionWithExactValueInPath : IDocumentFilter
     {
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)

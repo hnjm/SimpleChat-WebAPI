@@ -7,17 +7,13 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NGA.Core;
-using NGA.Core.Helper;
-using NGA.Core.Model;
-using NGA.Core.Validation;
-using NGA.Data.SubStructure;
 
-namespace NGA.MonolithAPI.Controllers.V2
+namespace SimpleChat.API.Controllers.V1
 {
+    //TODO: REFACTOR IT
     [Authorize]
     //[ApiExplorerSettings(IgnoreApi = true)]
-    [ApiVersion("2.0")]
+    //[ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiController]
     public abstract class DefaultApiController : ControllerBase

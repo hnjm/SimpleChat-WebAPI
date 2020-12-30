@@ -4,19 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NGA.Core;
-using NGA.Core.Helper;
-using NGA.Data;
-using NGA.Data.Service;
-using NGA.Data.ViewModel;
-using NGA.Domain;
+using SimpleChat.Core;
+using SimpleChat.Core.Helper;
+using SimpleChat.Data.Service;
+using SimpleChat.Data.ViewModel.ChatRoom;
+using SimpleChat.Domain;
 
-namespace NGA.MonolithAPI.Controllers.V2
+namespace SimpleChat.API.Controllers.V1
 {
-    [ApiVersion("2.0")]
-    public class GroupController : DefaultApiCRUDController<GroupAddVM, GroupUpdateVM, ChatRoomVM, IGroupService>
+    public class ChatRoomController : DefaultApiCRUDController<ChatRoomAddVM, ChatRoomUpdateVM, ChatRoomVM, ChatRoom, ChatRoomService>
     {
-        public GroupController(IGroupService service, ILogger<GroupController> logger)
+        public ChatRoomController(ChatRoomService service, ILogger<ChatRoomController> logger)
              : base(service, logger)
         {
 
@@ -36,7 +34,8 @@ namespace NGA.MonolithAPI.Controllers.V2
             }
             catch (Exception ex)
             {
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVM());
+
             }
         }
 
@@ -54,7 +53,7 @@ namespace NGA.MonolithAPI.Controllers.V2
             }
             catch (Exception ex)
             {
-                return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
+                return new JsonResult(APIResult.CreateVM());
             }
         }
     }

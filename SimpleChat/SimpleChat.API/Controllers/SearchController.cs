@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NGA.Data.Service;
-using NGA.Domain;
+using SimpleChat.Data.Service;
 
-namespace NGA.MonolithAPI.Controllers.V2
+namespace SimpleChat.API.Controllers.V1
 {
     public class SearchController : DefaultApiController
     {
@@ -28,7 +27,7 @@ namespace NGA.MonolithAPI.Controllers.V2
                 return new JsonResult("");
             }
 
-            var messages = _service.Repository.Query().Where(s => s.Text.Contains(key)).ToList();
+            var messages = _service.Query().Where(s => s.Text.Contains(key)).ToList();
 
             return new JsonResult(messages);
         }

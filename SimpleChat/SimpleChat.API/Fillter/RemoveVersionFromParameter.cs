@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.JsonPatch.Operations;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace NGA.MonolithAPI.Fillter
+namespace SimpleChat.API.Fillter
 {
+    //TODO: REFACTOR IT
     public class RemoveVersionFromParameter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
