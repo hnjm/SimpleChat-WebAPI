@@ -3,7 +3,7 @@ version: '3.3'
 services:
 
     mssql:
-        container_name: MSSQL-Server
+        container_name: SimpleChat-MSSQL-Server
         image: microsoft/mssql-server-linux:2017-latest
         environment:
           - MSSQL_SA_PASSWORD=Pass@word

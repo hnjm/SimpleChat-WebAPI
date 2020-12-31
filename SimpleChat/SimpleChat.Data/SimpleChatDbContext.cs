@@ -36,8 +36,8 @@ namespace SimpleChat.Data
             builder.Entity<Role>().ToTable("Roles");
         }
 
-        public virtual DbSet<ChatRoom> Groups { get; set; }
-        public virtual DbSet<ChatRoomUser> GroupUsers { get; set; }
-        public virtual DbSet<Message> Messages { get; set; }        
+        public virtual DbSet<ChatRoom> ChatRooms { get; set; }
+        public virtual DbSet<ChatRoomUser> ChatRoomUsers { get; set; }
+        public virtual DbSet<Message> Messages { get; set; }
     }
 }

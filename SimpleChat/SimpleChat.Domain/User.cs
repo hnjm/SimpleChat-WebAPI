@@ -20,10 +20,6 @@ namespace SimpleChat.Domain
         public string About { get; set; }
 
         [Required]
-        [GuidValidation]
-        public Guid RoleId { get; set; }
-
-        [Required]
         public DateTime CreateDateTime { get; set; }
 
         public DateTime? LastLoginDateTime { get; set; }
