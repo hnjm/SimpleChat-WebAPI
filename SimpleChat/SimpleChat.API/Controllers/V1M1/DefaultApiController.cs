@@ -14,6 +14,7 @@ namespace SimpleChat.API.Controllers.V1M1
     // [Authorize]
     //[ApiExplorerSettings(IgnoreApi = true)]
     [ApiVersion("1.1")]
+    [Produces("application/json")]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public abstract class DefaultApiController : ControllerBase

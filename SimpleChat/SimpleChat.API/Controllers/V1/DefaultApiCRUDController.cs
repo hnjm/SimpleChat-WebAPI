@@ -28,7 +28,7 @@ namespace SimpleChat.API.Controllers.V1
         Task<JsonResult> Update(Guid id, U model);
         Task<JsonResult> Delete(Guid id);
     }
-
+    
     public abstract class DefaultApiCRUDController<A, U, L, D, S> : DefaultApiController, IDefaultApiCRUDController<A, U, L, D, S>
             where A : AddVM, IAddVM, new()
             where U : UpdateVM, IUpdateVM, new()

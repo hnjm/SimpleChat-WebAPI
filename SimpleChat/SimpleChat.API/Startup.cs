@@ -34,7 +34,11 @@ namespace SimpleChat.API
             services.AddControllers(options =>
             {
                 options.Conventions.Add(new GroupingByNamespaceConvention());
-            });
+                options.RespectBrowserAcceptHeader = false;
+                options.ReturnHttpNotAcceptable = true;
+
+                // For details: https://code-maze.com/content-negotiation-dotnet-core/
+            }).AddNewtonsoftJson();
 
             #region API Versioning
 
@@ -108,6 +112,22 @@ namespace SimpleChat.API
                 config.DocumentFilter<SwaggerDocsFilter>();
             });
 
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = actionContext =>
+                {
+                    var actionExecutingContext = actionContext as Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext;
+
+                    if (actionExecutingContext.ModelState.ErrorCount > 0
+                        && actionExecutingContext?.ActionArguments.Count == actionContext.ActionDescriptor.Parameters.Count)
+                    {
+                        return new UnprocessableEntityObjectResult(actionContext.ModelState);
+                    }
+
+                    return new BadRequestObjectResult(actionContext.ModelState);
+                };
+            });
+
             #endregion
 
         }
@@ -132,8 +152,11 @@ namespace SimpleChat.API
                     config.SwaggerEndpoint("/swagger/1.1/swagger.json", "1.1");
                 });
             }
+            else
+            {
+                app.UseHttpsRedirection();
+            }
 
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 
