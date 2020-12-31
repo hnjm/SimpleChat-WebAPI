@@ -12,10 +12,10 @@ namespace SimpleChat.API.Controllers.V1
 {
     //TODO: REFACTOR IT
     // [Authorize]
-    //[ApiExplorerSettings(IgnoreApi = true)]
+    // [ApiExplorerSettings(IgnoreApi = true)]
+    [ApiController]
     [ApiVersion("1.0")]
     [Route("api/[controller]/[action]")]
-    [ApiController]
     public abstract class DefaultApiController : ControllerBase
     {
 

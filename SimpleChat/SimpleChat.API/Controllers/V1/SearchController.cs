@@ -20,6 +20,11 @@ namespace SimpleChat.API.Controllers.V1
             this._service = service;
         }
 
+        /// <summary>
+        /// Get a list of messages which is contains 'key' parameter
+        /// </summary>
+        /// <param name="key">Text fields of the messages querying by this paramerter</param>
+        /// <returns>A list of filtered messages</returns>
         [HttpGet]
         public JsonResult Get(string key)
         {

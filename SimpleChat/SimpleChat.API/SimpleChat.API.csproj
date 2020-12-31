@@ -4,17 +4,28 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>2167ed09-7574-4e1e-bb59-777f1f5266f6</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- <TreatWarningsAsErrors>true</TreatWarningsAsErrors> -->
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Mappers for objects -->
     <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <!-- Serializers -->
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <!-- Dependency Injection Libs -->
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.0" />
+    <!-- API Versioning -->
     <PackageReference Include="Microsoft.AspNetCore.MVC.Versioning" Version="4.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="4.2.0" />
+    <!-- Authentication & Authorization -->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.1" NoWarn="NU1605" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.1" NoWarn="NU1605" />
+    <!-- Hosting & etc -->
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <!-- OpenID & API Documentation -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.6.3" />
   </ItemGroup>
 
   <ItemGroup>
