@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,10 +57,12 @@ namespace SimpleChat.API
                     // note: the specified format code will format the version as "'v'major[.minor][-status]"
                     options.GroupNameFormat = "VV";
 
-                    // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
-                    // can also be used to control the format of the API version in route templates
-                    // options.SubstituteApiVersionInUrl = true;
+                // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
+                // can also be used to control the format of the API version in route templates
+                // options.SubstituteApiVersionInUrl = true;
             });
+
+            var apiVersionDescriptionProvider = services.BuildServiceProvider().GetService<IApiVersionDescriptionProvider>();
 
             #endregion
 
@@ -81,25 +84,18 @@ namespace SimpleChat.API
                     Url = new Uri("https://github.com/SevcanAlkan")
                 };
 
-                config.SwaggerDoc("1.0", new OpenApiInfo
+                foreach (var versionDescription in apiVersionDescriptionProvider.ApiVersionDescriptions)
                 {
-                    Version = "1.0",
-                    Title = title + " V1.0",
-                    Description = description,
-                    TermsOfService = termsOfService,
-                    License = license,
-                    Contact = contact
-                });
-
-                config.SwaggerDoc("1.1", new OpenApiInfo
-                {
-                    Version = "1.1",
-                    Title = title + " V1.1",
-                    Description = description,
-                    TermsOfService = termsOfService,
-                    License = license,
-                    Contact = contact
-                });
+                    config.SwaggerDoc(versionDescription.GroupName, new OpenApiInfo
+                    {
+                        Version = versionDescription.ApiVersion.ToString(),
+                        Title = title + $" {versionDescription.ApiVersion.ToString()}",
+                        Description = description,
+                        TermsOfService = termsOfService,
+                        License = license,
+                        Contact = contact
+                    });
+                }
 
                 // config.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
                 // config.CustomSchemaIds(x => x.FullName);
@@ -133,7 +129,7 @@ namespace SimpleChat.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider apiVersionDescriptionProvider)
         {
             app.UseStaticFiles();
             app.UseDefaultFiles();
@@ -148,8 +144,15 @@ namespace SimpleChat.API
                 });
                 app.UseSwaggerUI(config =>
                 {
-                    config.SwaggerEndpoint("/swagger/1.0/swagger.json", "1.0");
-                    config.SwaggerEndpoint("/swagger/1.1/swagger.json", "1.1");
+                    foreach (var versionDescription in apiVersionDescriptionProvider.ApiVersionDescriptions)
+                    {
+                        config.SwaggerEndpoint($"/swagger/{versionDescription.GroupName}/swagger.json",
+                            versionDescription.GroupName.ToUpperInvariant());
+                    }
+
+                    config.DefaultModelExpandDepth(2);
+                    config.DisplayOperationId();
+                    config.EnableDeepLinking();
                 });
             }
             else
