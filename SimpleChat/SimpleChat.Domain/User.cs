@@ -28,7 +28,7 @@ namespace SimpleChat.Domain
     public class User : UserBase
     {
         //Foreign keys
-        public virtual Role Role { get; set; }
+        //public virtual Role Role { get; set; }
 
         public virtual ICollection<ChatRoomUser> ChatRooms { get; set; }
 

@@ -105,24 +105,23 @@ namespace SimpleChat.API.Controllers.V1
             try
             {
                 var user = await _userManager.FindByIdAsync(model.Id.ToString());
-                //if (user != null)
-                //{
-                //    user.About = model.About;
-                //    user.DisplayName = model.DisplayName;            
-                //    user.UserName = model.UserName;
+                if (user != null)
+                {
+                    user.About = model.About;
+                    user.DisplayName = model.DisplayName;
 
-                //    IdentityResult result;
+                    IdentityResult result;
 
-                //    if (model.OldPassword != model.PasswordHash)
-                //    {
-                //        result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.PasswordHash);
-                //        if (!result.Succeeded)
-                //            return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
-                //    }
-                //    result = await _userManager.UpdateAsync(user);
-                //    if (!result.Succeeded)
-                //        return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));                    
-                //}
+                    //    if (model.OldPassword != model.PasswordHash)
+                    //    {
+                    //        result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.PasswordHash);
+                    //        if (!result.Succeeded)
+                    //            return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
+                    //    }
+                    result = await _userManager.UpdateAsync(user);
+                    if (!result.Succeeded)
+                        return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
+                }
 
                 return new JsonResult(APIResult.CreateVM(true, user.Id));
             }
@@ -132,24 +131,24 @@ namespace SimpleChat.API.Controllers.V1
             }
         }
 
-        //[HttpGet]
-        //[AllowAnonymous]      
-        //public async Task<JsonResult> CreateToken(UserLoginVM model)
-        //{
-        //    var loginResult = await _signInManager.PasswordSignInAsync(model.UserName, model.PasswordHash, isPersistent: false, lockoutOnFailure: false);
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<JsonResult> CreateToken(UserLoginVM model)
+        {
+           var loginResult = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, isPersistent: false, lockoutOnFailure: false);
 
-        //    if (!loginResult.Succeeded)
-        //        return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01004));
+           if (!loginResult.Succeeded)
+               return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01004));
 
-        //    var user = await _userManager.FindByNameAsync(model.UserName);
-        //    user.LastLoginDateTime = DateTime.UtcNow;
-        //    await _userManager.UpdateAsync(user);
+           var user = await _userManager.FindByNameAsync(model.UserName);
+           user.LastLoginDateTime = DateTime.UtcNow;
+           await _userManager.UpdateAsync(user);
 
-        //    var returnVM = _mapper.Map<User, UserAuthenticationVM>(user);
-        //    returnVM.Token = GetToken(user);
-            
-        //    return new JsonResult(returnVM);
-        //}
+           var returnVM = _mapper.Map<User, UserAuthenticationVM>(user);
+           returnVM.Token = GetToken(user);
+
+           return new JsonResult(returnVM);
+        }
 
         [HttpGet]
         public async Task<JsonResult> RefreshToken()
@@ -162,42 +161,42 @@ namespace SimpleChat.API.Controllers.V1
             return new JsonResult(APIResult.CreateVMWithRec<string>(GetToken(user), true));
         }
 
-        //[HttpPost]
-        //[AllowAnonymous]
-        //public async Task<JsonResult> Register(UserAddVM model)
-        //{
-        //    try
-        //    {
-        //        if (ModelState.IsValid)
-        //        {
-        //            User entity = _mapper.Map<UserAddVM, User>(model);
-        //            entity.Id = Guid.NewGuid();
-        //            entity.CreateDateTime = DateTime.UtcNow;
-        //            entity.LastLoginDateTime = DateTime.UtcNow;
-        //            var identityResult = await _userManager.CreateAsync(entity, model.PasswordHash);
-        //            if (identityResult.Succeeded)
-        //            {
-        //                await _signInManager.SignInAsync(entity, isPersistent: false);
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<JsonResult> Register(UserRegisterVM model)
+        {
+           try
+           {
+               if (ModelState.IsValid)
+               {
+                   User entity = _mapper.Map<UserRegisterVM, User>(model);
+                   entity.Id = Guid.NewGuid();
+                   entity.CreateDateTime = DateTime.UtcNow;
+                   entity.LastLoginDateTime = DateTime.UtcNow;
+                   var identityResult = await _userManager.CreateAsync(entity, model.Password);
+                   if (identityResult.Succeeded)
+                   {
+                       await _signInManager.SignInAsync(entity, isPersistent: false);
 
 
-        //                UserAuthenticateVM returnVM = new UserAuthenticateVM();
-        //                returnVM = _mapper.Map<User, UserAuthenticateVM>(entity);
-        //                returnVM.Token = GetToken(entity);
+                       UserAuthenticationVM returnVM = new UserAuthenticationVM();
+                       returnVM = _mapper.Map<User, UserAuthenticationVM>(entity);
+                       returnVM.Token = GetToken(entity);
 
-        //                return new JsonResult(returnVM);
-        //            }
-        //            else
-        //            {
-        //                return new JsonResult(APIResult.CreateVMWithRec<object>(identityResult.Errors));
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new JsonResult(APIResult.CreateVMWithError(ex, APIResult.CreateVM(false, null, APIStatusCode.ERR01001)));
-        //    }
-        //    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.ERR01001));
-        //}
+                       return new JsonResult(returnVM);
+                   }
+                   else
+                   {
+                       return new JsonResult(APIResult.CreateVMWithRec<object>(identityResult.Errors));
+                   }
+               }
+           }
+           catch (Exception ex)
+           {
+               return new JsonResult(APIResult.CreateVM());
+           }
+           return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.ERR01001));
+        }
 
         [HttpGet]
         private String GetToken(User user)

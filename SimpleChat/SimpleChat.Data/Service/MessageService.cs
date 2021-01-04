@@ -23,7 +23,7 @@ namespace SimpleChat.Data.Service
 
         #endregion
 
-        #region Methods                
+        #region Methods
         public List<MessageVM> GetMessagesByChatRoomId(Guid ChatRoomId)
         {
             var result = this.Repository.Query().Where(a => a.ChatRoomId == ChatRoomId).Select(a => new MessageVM()
@@ -37,6 +37,7 @@ namespace SimpleChat.Data.Service
 
             return result;
         }
+
         #endregion
     }
 

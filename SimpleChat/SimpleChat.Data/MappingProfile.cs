@@ -2,6 +2,7 @@
 using SimpleChat.Data.ViewModel;
 using SimpleChat.Data.ViewModel.ChatRoom;
 using SimpleChat.Data.ViewModel.Message;
+using SimpleChat.Data.ViewModel.User;
 using SimpleChat.Domain;
 using System;
 using System.Collections.Generic;
@@ -67,6 +68,12 @@ namespace SimpleChat.Data
             CreateMap<Message, MessageVM>().ReverseMap();
             CreateMap<Message, MessageAddVM>().ReverseMap();
             CreateMap<Message, MessageUpdateVM>().ReverseMap();
+
+            CreateMap<UserRegisterVM, User>();
+            CreateMap<User, UserAuthenticationVM>();
+            // CreateMap<Message, MessageUpdateVM>().ReverseMap();
+            // CreateMap<Message, MessageUpdateVM>().ReverseMap();
+            // CreateMap<Message, MessageUpdateVM>().ReverseMap();
         }
     }
 }

@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace SimpleChat.API.Controllers.V2
 {
     //TODO: REFACTOR IT
-    // [Authorize]
+    [Authorize]
     //[ApiExplorerSettings(IgnoreApi = true)]
     [ApiVersion("2.0")]
     [Produces("application/json")]
