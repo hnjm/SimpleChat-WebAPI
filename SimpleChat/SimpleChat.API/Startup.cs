@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SimpleChat.API.Config;
+using SimpleChat.Core.Validation;
 using SimpleChat.Data;
 using SimpleChat.Data.Service;
 using SimpleChat.Data.SubStructure;
@@ -32,9 +33,6 @@ namespace SimpleChat.API
 {
     public class Startup
     {
-        private readonly string DefaultCorsPolicy = "DefaultCorsPolicy";
-        private readonly string DevelopmentCorsPolicy = "DevelopmentCorsPolicy";
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -51,8 +49,18 @@ namespace SimpleChat.API
 
             services.AddCors(options =>
             {
-                options.AddPolicy(DefaultCorsPolicy, builder => builder.WithOrigins(allowedOrigins).SetPreflightMaxAge(new TimeSpan(0, 10, 0)));
-                options.AddPolicy(DevelopmentCorsPolicy, builder => builder.AllowAnyOrigin().SetPreflightMaxAge(new TimeSpan(0, 10, 0)));
+                options.AddPolicy(ConstantValues.DefaultCorsPolicy, builder =>
+                    builder.AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .SetIsOriginAllowed(origin => true) // allow any origin
+                    .AllowCredentials()
+                    .SetPreflightMaxAge(new TimeSpan(0, 10, 0)));
+                options.AddPolicy(ConstantValues.DefaultAuthCorsPolicy, builder =>
+                    builder.AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .SetIsOriginAllowed(origin => true) // allow any origin
+                    .AllowCredentials()
+                    .SetPreflightMaxAge(new TimeSpan(0, 10, 0)));
             });
 
             #endregion
@@ -70,15 +78,16 @@ namespace SimpleChat.API
 
             #endregion
 
-            #region Add Entity Framework and Identity Framework, Register DbContext
+            #region Entity Framework and Identity Framework, Register DbContext
 
             services.AddIdentity<User, Role>()
+                .AddErrorDescriber<IdentityErrorDescriberForAPIStatusCodes>()
                 .AddEntityFrameworkStores<SimpleChatDbContext>()
                 .AddDefaultTokenProviders();
 
             #endregion
 
-            #region Add Authentication
+            #region Authentication
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -219,21 +228,21 @@ namespace SimpleChat.API
                 config.DocumentFilter<SwaggerDocsFilter>();
             });
 
-            services.Configure<ApiBehaviorOptions>(options =>
-            {
-                options.InvalidModelStateResponseFactory = actionContext =>
-                {
-                    var actionExecutingContext = actionContext as Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext;
+            // services.Configure<ApiBehaviorOptions>(options =>
+            // {
+            //     options.InvalidModelStateResponseFactory = actionContext =>
+            //     {
+            //         var actionExecutingContext = actionContext as Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext;
 
-                    if (actionExecutingContext.ModelState.ErrorCount > 0
-                        && actionExecutingContext?.ActionArguments.Count == actionContext.ActionDescriptor.Parameters.Count)
-                    {
-                        return new UnprocessableEntityObjectResult(actionContext.ModelState);
-                    }
+            //         if (actionExecutingContext.ModelState.ErrorCount > 0
+            //             && actionExecutingContext?.ActionArguments.Count == actionContext.ActionDescriptor.Parameters.Count)
+            //         {
+            //             return new UnprocessableEntityObjectResult(actionContext.ModelState);
+            //         }
 
-                    return new BadRequestObjectResult(actionContext.ModelState);
-                };
-            });
+            //         return new BadRequestObjectResult(actionContext.ModelState);
+            //     };
+            // });
 
             #endregion
 
@@ -296,16 +305,14 @@ namespace SimpleChat.API
                     config.DisplayOperationId();
                     config.EnableDeepLinking();
                 });
-
-                app.UseCors(DevelopmentCorsPolicy);
             }
             else
             {
                 app.UseHttpsRedirection();
-                app.UseCors(DefaultCorsPolicy);
             }
 
             app.UseRouting();
+            app.UseCors(ConstantValues.DefaultCorsPolicy);
 
             app.UseAuthentication();
             app.UseAuthorization();

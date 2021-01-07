@@ -13,9 +13,10 @@ using SimpleChat.Domain;
 namespace SimpleChat.API.Controllers.V1
 {
     [ApiVersion("1.0")]
-    public class MessageController : DefaultApiCRUDController<MessageAddVM, MessageUpdateVM, MessageVM, Message, MessageService>
+    public class MessagesController : DefaultApiCRUDController<MessageAddVM, MessageUpdateVM, MessageVM, Message, MessageService>
     {
-        public MessageController(MessageService service, ILogger<MessageController> logger)
+        public MessagesController(MessageService service,
+            ILogger<MessagesController> logger)
              : base(service, logger)
         {
 
@@ -30,7 +31,7 @@ namespace SimpleChat.API.Controllers.V1
                 var result = _service.GetMessagesByChatRoomId(groupId);
 
                 if (result == null)
-                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
+                    return new JsonResult(APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01002));
 
                 return new JsonResult(result);
             }

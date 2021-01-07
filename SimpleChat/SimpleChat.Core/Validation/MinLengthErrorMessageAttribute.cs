@@ -18,32 +18,32 @@ namespace SimpleChat.Core.Validation
         {
             try
             {
-                int currentLenght = 0;
+                int currentLength = 0;
                 Type type = value.GetType();
 
                 switch (type)
                 {
                     case var _ when type.Equals(typeof(int)):
-                        int.TryParse(value.ToString(), out currentLenght);
+                        int.TryParse(value.ToString(), out currentLength);
                         break;
                     case var _ when type.Equals(typeof(string)):
                         string stringValue = Convert.ToString(value);
-                        currentLenght = stringValue.Length;
+                        currentLength = stringValue.Length;
                         break;
                     default:
                         break;
                 }
 
-                if(currentLenght < minLength && minLength > 0)
+                if(currentLength < minLength && minLength > 0)
                 {
-                    string errorMessage = ErrorMessages.CombineWithParams(ErrorMessages.MinStringLenght, minLength.ToString());
+                    string errorMessage = AttributeErrorMessages.CombineWithParams(AttributeErrorMessages.MinStringLength, minLength.ToString());
 
                     return new ValidationResult(errorMessage);
                 }
             }
             catch (Exception)
             {
-                return new ValidationResult(ErrorMessages.ErrorThrew);
+                return new ValidationResult(AttributeErrorMessages.ErrorThrew);
             }
 
             return null;

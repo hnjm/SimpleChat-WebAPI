@@ -4,16 +4,12 @@ using System.Text;
 
 namespace SimpleChat.Core.Validation
 {
-    public static class ErrorMessages
+    public static class AttributeErrorMessages
     {
         public static string ErrorThrew = "EE001";
 
-        public static string MinStringLenght = "EF001";
-        public static string MaxStringLenght = "EF002";
-
-        public static string RecordNotFound = "Record couldn't found!";
-
-        public static string NotOwnerOfRecord = "Not owner of the record!";
+        public static string MinStringLength = "EF001";
+        public static string MaxStringLength = "EF002";
 
         public static string CombineWithParams(string errorMessage, params string[] args)
         {

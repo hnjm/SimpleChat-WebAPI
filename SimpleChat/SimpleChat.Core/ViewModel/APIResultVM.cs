@@ -11,7 +11,7 @@ namespace SimpleChat.Core.ViewModel
 
         object Rec { get; set; }
         bool IsSuccessful { get; set; }
-        string StatusCode { get; set; }
+        IEnumerable<APIResultErrorCodeVM> Errors { get; set; }
     }
 
     public class APIResultVM : IResultVM
@@ -20,6 +20,13 @@ namespace SimpleChat.Core.ViewModel
 
         public object Rec { get; set; }
         public bool IsSuccessful { get; set; }
-        public string StatusCode { get; set; }
+
+        public IEnumerable<APIResultErrorCodeVM> Errors { get; set; }
+    }
+
+    public class APIResultErrorCodeVM
+    {
+        public string Field { get; set; }
+        public string ErrorCode { get; set; }
     }
 }

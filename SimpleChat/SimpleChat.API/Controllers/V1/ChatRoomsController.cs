@@ -13,9 +13,10 @@ using SimpleChat.Domain;
 namespace SimpleChat.API.Controllers.V1
 {
     [ApiVersion("1.0")]
-    public class ChatRoomController : DefaultApiCRUDController<ChatRoomAddVM, ChatRoomUpdateVM, ChatRoomVM, ChatRoom, ChatRoomService>
+    public class ChatRoomsController : DefaultApiCRUDController<ChatRoomAddVM, ChatRoomUpdateVM, ChatRoomVM, ChatRoom, ChatRoomService>
     {
-        public ChatRoomController(ChatRoomService service, ILogger<ChatRoomController> logger)
+        public ChatRoomsController(ChatRoomService service,
+            ILogger<ChatRoomsController> logger)
              : base(service, logger)
         {
 
@@ -29,7 +30,7 @@ namespace SimpleChat.API.Controllers.V1
                 var result = _service.GetByUserId(userId);
 
                 if (result == null)
-                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
+                    return new JsonResult(APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01002));
 
                 return new JsonResult(result);
             }
@@ -48,7 +49,7 @@ namespace SimpleChat.API.Controllers.V1
                 var result = _service.GetUsers(groupId);
 
                 if (result == null)
-                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
+                    return new JsonResult(APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01002));
 
                 return new JsonResult(result);
             }

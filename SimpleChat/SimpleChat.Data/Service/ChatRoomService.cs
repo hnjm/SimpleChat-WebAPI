@@ -110,7 +110,7 @@ namespace SimpleChat.Data.Service
         public override async Task<APIResultVM> UpdateAsync(Guid id, ChatRoomUpdateVM model, Guid? userId = null, bool isCommit = true)
         {
             if (model.IsMain && Repository.Query().Any(a => a.Id != id && a.IsMain))
-                return APIResult.CreateVM(false, id, APIStatusCode.WRG01005);
+                return APIResult.CreateVMWithStatusCode(false, id, APIStatusCode.ERR01005);
 
 
             var result = await base.UpdateAsync(id, model, userId, true);
@@ -151,7 +151,7 @@ namespace SimpleChat.Data.Service
         {
             var ChatRoom = await base.GetByIdAsync(id);
             if (ChatRoom == null || ChatRoom.IsMain)
-                return APIResult.CreateVM(false, id, APIStatusCode.WRG01005);
+                return APIResult.CreateVMWithStatusCode(false, id, APIStatusCode.ERR01005);
 
 
             var result = await base.DeleteAsync(id, userId, shouldBeOwner, true);

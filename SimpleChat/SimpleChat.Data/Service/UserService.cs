@@ -25,14 +25,15 @@ namespace SimpleChat.Data.Service
 
         #endregion
 
-        #region Methods                
+        #region Methods
 
         public List<UserVM> GetAll()
         {
-            var userList = con.Set<User>().ToList();
-            List<UserVM> result = mapper.Map<List<UserVM>>(userList);
+            var userList = con.Set<User>().AsEnumerable()
+                .Select(x => mapper.Map<UserVM>(x))
+                .ToList();
 
-            return result;
+            return userList;
         }
 
         public List<UserListVM> GetUserList()
@@ -47,9 +48,9 @@ namespace SimpleChat.Data.Service
             return result;
         }
 
-        public bool Any(string userName)
+        public Task<bool> AnyAsync(string userName)
         {
-            var result = con.Set<User>().Any(a => a.UserName == userName);
+            var result = con.Set<User>().AnyAsync(a => a.UserName == userName);
 
             return result;
         }
@@ -60,7 +61,7 @@ namespace SimpleChat.Data.Service
 
             if (rec == null)
             {
-                return null;   
+                return null;
             }
 
             rec.AccessFailedCount = 0;
@@ -78,7 +79,7 @@ namespace SimpleChat.Data.Service
     {
         List<UserVM> GetAll();
         List<UserListVM> GetUserList();
-        bool Any(string userName);
+        Task<bool> AnyAsync(string userName);
         User GetById(Guid id);
     }
 }

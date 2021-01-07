@@ -11,11 +11,12 @@ using SimpleChat.Domain;
 namespace SimpleChat.API.Controllers.V1
 {
     [ApiVersion("1.0")]
-    public class SearchController : DefaultApiController
+    public class SearchesController : DefaultApiController
     {
         private IMessageService _service;
 
-        public SearchController(IMessageService service, ILogger<SearchController> logger)
+        public SearchesController(IMessageService service,
+            ILogger<SearchesController> logger)
              : base(logger)
         {
             this._service = service;

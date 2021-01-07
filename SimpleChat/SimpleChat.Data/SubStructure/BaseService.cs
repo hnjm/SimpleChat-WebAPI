@@ -11,6 +11,7 @@ using SimpleChat.Core.EntityFramework;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SimpleChat.Core;
 
 namespace SimpleChat.Data.SubStructure
 {
@@ -189,7 +190,7 @@ namespace SimpleChat.Data.SubStructure
                 if (entity is ITableEntity)
                 {
                     (entity as ITableEntity).CreateBy = _userId;
-                    (entity as ITableEntity).CreateDT = DateTime.Now;
+                    (entity as ITableEntity).CreateDT = DateTime.UtcNow;
                 }
 
                 Repository.Add(entity);
@@ -213,14 +214,14 @@ namespace SimpleChat.Data.SubStructure
 
                 D entity = await _uow.Repository<D>(_repositoryLogger).GetByIDAysnc(id);
                 if (entity.IsNull())
-                    return APIResult.CreateVM(false, id, ErrorMessages.RecordNotFound);
+                    return APIResult.CreateVMWithStatusCode(false, id, APIStatusCode.ERR01002);
 
                 entity = _mapper.Map<U, D>(model, entity);
 
                 if (entity is ITableEntity)
                 {
                     (entity as ITableEntity).UpdateBy = _userId;
-                    (entity as ITableEntity).UpdateDT = DateTime.Now;
+                    (entity as ITableEntity).UpdateDT = DateTime.UtcNow;
                 }
 
                 Repository.Update(entity);
@@ -244,15 +245,15 @@ namespace SimpleChat.Data.SubStructure
 
                 D entity = await _uow.Repository<D>(_repositoryLogger).GetByIDAysnc(id);
                 if (entity.IsNull())
-                    return APIResult.CreateVM(false, id, ErrorMessages.RecordNotFound);
+                    return APIResult.CreateVMWithStatusCode(false, id, APIStatusCode.ERR01002);
 
                 if (shouldBeOwner && (_userId == Guid.Empty || _userId != (entity as ITableEntity).CreateBy))
-                    return APIResult.CreateVM(false, id, ErrorMessages.NotOwnerOfRecord);
+                    return APIResult.CreateVMWithStatusCode(false, id, APIStatusCode.ERR01007);
 
                 if (entity is ITableEntity)
                 {
                     (entity as ITableEntity).UpdateBy = _userId;
-                    (entity as ITableEntity).UpdateDT = DateTime.Now;
+                    (entity as ITableEntity).UpdateDT = DateTime.UtcNow;
                 }
 
                 entity.IsDeleted = true;
@@ -277,12 +278,12 @@ namespace SimpleChat.Data.SubStructure
 
                 D entity = await _uow.Repository<D>(_repositoryLogger).GetByIDAysnc(id);
                 if (entity.IsNull())
-                    return APIResult.CreateVM(false, id, ErrorMessages.RecordNotFound);
+                    return APIResult.CreateVMWithStatusCode(false, id, APIStatusCode.ERR01002);
 
                 if (entity is ITableEntity)
                 {
                     (entity as ITableEntity).UpdateBy = _userId;
-                    (entity as ITableEntity).UpdateDT = DateTime.Now;
+                    (entity as ITableEntity).UpdateDT = DateTime.UtcNow;
                 }
 
                 entity.IsDeleted = false;

@@ -49,10 +49,10 @@ namespace SimpleChat.API.Controllers.V1
         {
             try
             {
-                var result = _service.GetAllAsync();             
+                var result = _service.GetAllAsync();
 
                 if (result == null)
-                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
+                    return new JsonResult(APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01002));
 
                 return new JsonResult(result);
             }
@@ -72,12 +72,12 @@ namespace SimpleChat.API.Controllers.V1
             try
             {
                 if (id.IsEmptyGuid())
-                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01002));
+                    return new JsonResult(APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01002));
 
                 var result = await _service.GetByIdAsync(id);
 
                 if (result == null)
-                    return new JsonResult(APIResult.CreateVM(false, null, APIStatusCode.WRG01001));
+                    return new JsonResult(APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01002));
 
                 return new JsonResult(APIResult.CreateVMWithRec<L>(result, true, result.Id));
             }
@@ -98,7 +98,7 @@ namespace SimpleChat.API.Controllers.V1
             try
             {
                 if (model.IsNull())
-                    APIResult.CreateVM(false, null, APIStatusCode.WRG01001);
+                    APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01002);
 
                 result = await _service.AddAsync(model);
 
@@ -119,7 +119,7 @@ namespace SimpleChat.API.Controllers.V1
             try
             {
                 if (model.IsNull())
-                    APIResult.CreateVM(false, id, APIStatusCode.WRG01001);
+                    APIResult.CreateVMWithStatusCode(false, id, APIStatusCode.ERR01003);
 
                 result = await _service.UpdateAsync(id, model);
 
@@ -140,7 +140,7 @@ namespace SimpleChat.API.Controllers.V1
             try
             {
                 if (id.IsEmptyGuid())
-                    APIResult.CreateVM(false, null, APIStatusCode.WRG01001);
+                    APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01002);
 
                 result = await _service.DeleteAsync(id);
 

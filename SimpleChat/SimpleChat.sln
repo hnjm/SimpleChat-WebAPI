@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleChat.Data", "SimpleCh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleChat.Domain", "SimpleChat.Domain\SimpleChat.Domain.csproj", "{0DEFD282-8B82-4E1D-A3A1-F6E95E5EF07D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleChat.Test", "SimpleChat.Test\SimpleChat.Test.csproj", "{03573EE5-D1EA-4ECD-9F56-00A86C16B7E3}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{0DEFD282-8B82-4E1D-A3A1-F6E95E5EF07D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DEFD282-8B82-4E1D-A3A1-F6E95E5EF07D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0DEFD282-8B82-4E1D-A3A1-F6E95E5EF07D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{03573EE5-D1EA-4ECD-9F56-00A86C16B7E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{03573EE5-D1EA-4ECD-9F56-00A86C16B7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{03573EE5-D1EA-4ECD-9F56-00A86C16B7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{03573EE5-D1EA-4ECD-9F56-00A86C16B7E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
