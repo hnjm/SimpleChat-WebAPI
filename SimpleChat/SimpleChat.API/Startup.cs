@@ -72,8 +72,10 @@ namespace SimpleChat.API
                 options.Conventions.Add(new GroupingByNamespaceConvention());
                 options.RespectBrowserAcceptHeader = false;
                 options.ReturnHttpNotAcceptable = true;
-
                 // For details: https://code-maze.com/content-negotiation-dotnet-core/
+            }).ConfigureApiBehaviorOptions(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
             }).AddNewtonsoftJson();
 
             #endregion

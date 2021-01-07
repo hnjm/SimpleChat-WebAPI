@@ -89,7 +89,8 @@ namespace SimpleChat.API.Controllers.V1
         public async Task<JsonResult> Register(UserRegisterVM model)
         {
             if (!ModelState.IsValid)
-                return new JsonResult(APIResult.CreateVMWithModelState(modelStateDictionary: ModelState));
+                return new JsonAPIResult(APIResult.CreateVMWithModelState(modelStateDictionary: ModelState),
+                    StatusCodes.Status400BadRequest);
 
             User entity = _mapper.Map<UserRegisterVM, User>(model);
 
@@ -106,11 +107,13 @@ namespace SimpleChat.API.Controllers.V1
                 returnVM = _mapper.Map<User, UserAuthenticationVM>(entity);
                 returnVM.Token = GetToken(entity);
 
-                return Created("", APIResult.CreateVMWithRec<UserAuthenticationVM>(returnVM, true, entity.Id));
+                return new JsonAPIResult(APIResult.CreateVMWithRec<UserAuthenticationVM>(returnVM, true, entity.Id),
+                    StatusCodes.Status201Created);
             }
             else
             {
-                return UnprocessableEntity(APIResult.CreateVMWithIdentityErrors(errors: identityResult.Errors));
+                return new JsonAPIResult(APIResult.CreateVMWithIdentityErrors(errors: identityResult.Errors),
+                    StatusCodes.Status422UnprocessableEntity);
             }
         }
 
@@ -118,7 +121,8 @@ namespace SimpleChat.API.Controllers.V1
 
         public async Task<JsonResult> CreateToken(UserLoginVM model)
         {
-            var loginResult = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, isPersistent: false, lockoutOnFailure: false);
+            var loginResult = await _signInManager.PasswordSignInAsync(model.UserName, model.Password,
+                 isPersistent: false, lockoutOnFailure: false);
 
             if (!loginResult.Succeeded)
                 return new JsonResult(APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01004));

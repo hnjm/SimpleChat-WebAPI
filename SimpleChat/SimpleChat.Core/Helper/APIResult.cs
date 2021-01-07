@@ -26,43 +26,6 @@ namespace SimpleChat.Core.Helper
             return vm;
         }
 
-        public static APIResultVM CreateVMWithStatusCode(
-            bool isSuccessful = false,
-            Guid? recId = null,
-            string statusCode = "")
-        {
-            var errors = new List<APIResultErrorCodeVM>();
-            errors.Add(new APIResultErrorCodeVM()
-            {
-                Field = "General",
-                ErrorCode = statusCode
-            });
-
-            var vm = new APIResultVM()
-            {
-                IsSuccessful = isSuccessful,
-                RecId = recId,
-                Errors = errors.AsEnumerable<APIResultErrorCodeVM>()
-            };
-
-            return vm;
-        }
-
-        public static APIResultVM CreateVMWithIdentityErrors(
-            bool isSuccessful = false,
-            Guid? recId = null,
-            IEnumerable<IdentityError> errors = null)
-        {
-            return CreateVM(
-                isSuccessful,
-                recId,
-                errors.Select(x => new APIResultErrorCodeVM()
-                {
-                    ErrorCode = x.Description,
-                    Field = x.Code
-                }).AsEnumerable<APIResultErrorCodeVM>());
-        }
-
         public static APIResultVM CreateVMWithRec<T>(
             T rec,
             bool isSuccessful = false,
@@ -78,6 +41,35 @@ namespace SimpleChat.Core.Helper
             };
 
             return vm;
+        }
+        public static APIResultVM CreateVMWithStatusCode(
+            bool isSuccessful = false,
+            Guid? recId = null,
+            string statusCode = "")
+        {
+            var errors = new List<APIResultErrorCodeVM>();
+            errors.Add(new APIResultErrorCodeVM()
+            {
+                Field = "General",
+                ErrorCode = statusCode
+            });
+
+            return CreateVM(isSuccessful, recId, errors.AsEnumerable<APIResultErrorCodeVM>());
+        }
+
+        public static APIResultVM CreateVMWithIdentityErrors(
+            bool isSuccessful = false,
+            Guid? recId = null,
+            IEnumerable<IdentityError> errors = null)
+        {
+            return CreateVM(
+                isSuccessful,
+                recId,
+                errors.Select(x => new APIResultErrorCodeVM()
+                {
+                    ErrorCode = x.Description,
+                    Field = x.Code
+                }).AsEnumerable<APIResultErrorCodeVM>());
         }
 
         public static APIResultVM CreateVMWithModelState(

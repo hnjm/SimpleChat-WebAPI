@@ -11,13 +11,13 @@ namespace SimpleChat.Core.Validation
     {
         public static IEnumerable<APIResultErrorCodeVM> GetErrors(this ModelStateDictionary modelStateDictionary)
         {
-            return from sd in modelStateDictionary.Values
-                         from e in sd.Errors
-                         select new APIResultErrorCodeVM()
-                         {
-                             Field = sd.GetType().Name,
-                             ErrorCode = e.ErrorMessage
-                         };
+            return from sd in modelStateDictionary.Select(a => new { a.Key, a.Value}).ToList()
+                from e in sd.Value.Errors
+                select new APIResultErrorCodeVM()
+                {
+                    Field = sd.Key,
+                    ErrorCode = e.ErrorMessage
+                };
         }
     }
 }
