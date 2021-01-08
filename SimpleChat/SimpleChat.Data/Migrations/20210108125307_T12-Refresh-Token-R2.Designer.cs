@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimpleChat.Data;
 
 namespace SimpleChat.Data.Migrations
 {
     [DbContext(typeof(SimpleChatDbContext))]
-    partial class SimpleChatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210108125307_T12-Refresh-Token-R2")]
+    partial class T12RefreshTokenR2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

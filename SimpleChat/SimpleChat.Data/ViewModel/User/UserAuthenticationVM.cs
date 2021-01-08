@@ -14,6 +14,7 @@ namespace SimpleChat.Data.ViewModel.User
         public string DisplayName { get; set; }
         public string About { get; set; }
 
-        public string Token { get; set; }
+        public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
     }
 }

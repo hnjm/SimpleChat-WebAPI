@@ -93,7 +93,7 @@ namespace SimpleChat.API.Controllers.V1
         [HttpPost]
         public virtual async Task<JsonResult> Add(A model)
         {
-            APIResultVM result = new APIResultVM();
+            IAPIResultVM result = new APIResultVM();
 
             try
             {
@@ -114,7 +114,7 @@ namespace SimpleChat.API.Controllers.V1
         [HttpPut]
         public virtual async Task<JsonResult> Update(Guid id, U model)
         {
-            APIResultVM result = new APIResultVM();
+            IAPIResultVM result = new APIResultVM();
 
             try
             {
@@ -135,7 +135,7 @@ namespace SimpleChat.API.Controllers.V1
         [HttpDelete]
         public virtual async Task<JsonResult> Delete(Guid id)
         {
-            APIResultVM result = new APIResultVM();
+            IAPIResultVM result = new APIResultVM();
 
             try
             {

@@ -28,11 +28,11 @@ namespace SimpleChat.Data.SubStructure
         Task<IEnumerable<L>> GetAllAsync(bool asNoTracking = true);
         Task<List<L>> GetAllAsync(Expression<Func<D, bool>> expr, bool asNoTracking = true);
         IQueryable<T> GetAllAsync<T>(Expression<Func<D, bool>> expr, Expression<Func<D, T>> selector, bool asNoTracking = true);
-        Task<APIResultVM> AddAsync(A model, Guid? userId = null, bool isCommit = true);
-        Task<APIResultVM> UpdateAsync(Guid id, U model, Guid? userId = null, bool isCommit = true);
-        Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true);
-        Task<APIResultVM> ReverseDeleteAsync(Guid id, Guid? userId, bool isCommit = true);
-        Task<APIResultVM> CommitAsync();
+        Task<IAPIResultVM> AddAsync(A model, Guid? userId = null, bool isCommit = true);
+        Task<IAPIResultVM> UpdateAsync(Guid id, U model, Guid? userId = null, bool isCommit = true);
+        Task<IAPIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true);
+        Task<IAPIResultVM> ReverseDeleteAsync(Guid id, Guid? userId, bool isCommit = true);
+        Task<IAPIResultVM> CommitAsync();
     }
 
     public class BaseService<A, U, L, D> : IBaseService<A, U, L, D>
@@ -177,7 +177,7 @@ namespace SimpleChat.Data.SubStructure
         }
 
 
-        public virtual async Task<APIResultVM> AddAsync(A model, Guid? userId = null, bool isCommit = true)
+        public virtual async Task<IAPIResultVM> AddAsync(A model, Guid? userId = null, bool isCommit = true)
         {
             try
             {
@@ -206,7 +206,7 @@ namespace SimpleChat.Data.SubStructure
                 return APIResult.CreateVM();
             }
         }
-        public virtual async Task<APIResultVM> UpdateAsync(Guid id, U model, Guid? userId = null, bool isCommit = true)
+        public virtual async Task<IAPIResultVM> UpdateAsync(Guid id, U model, Guid? userId = null, bool isCommit = true)
         {
             try
             {
@@ -237,7 +237,7 @@ namespace SimpleChat.Data.SubStructure
                 return APIResult.CreateVM();
             }
         }
-        public virtual async Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true)
+        public virtual async Task<IAPIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true)
         {
             try
             {
@@ -270,7 +270,7 @@ namespace SimpleChat.Data.SubStructure
                 return APIResult.CreateVM();
             }
         }
-        public virtual async Task<APIResultVM> ReverseDeleteAsync(Guid id, Guid? userId, bool isCommit = true)
+        public virtual async Task<IAPIResultVM> ReverseDeleteAsync(Guid id, Guid? userId, bool isCommit = true)
         {
             try
             {
@@ -301,7 +301,7 @@ namespace SimpleChat.Data.SubStructure
             }
         }
 
-        public virtual async Task<APIResultVM> CommitAsync()
+        public virtual async Task<IAPIResultVM> CommitAsync()
         {
             try
             {

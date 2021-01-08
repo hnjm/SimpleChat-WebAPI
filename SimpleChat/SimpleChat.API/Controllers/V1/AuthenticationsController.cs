@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -12,12 +10,10 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using SimpleChat.API.Config;
 using SimpleChat.Core;
+using SimpleChat.Core.Auth;
 using SimpleChat.Core.Helper;
 using SimpleChat.Core.Validation;
 using SimpleChat.Core.ViewModel;
@@ -33,58 +29,78 @@ namespace SimpleChat.API.Controllers.V1
     [AllowAnonymous]
     public class AuthenticationsController : DefaultApiController
     {
-        private IConfiguration _config;
-        private IUserService _service;
+        private ITokenService _tokenService;
         private readonly IMapper _mapper;
 
         readonly UserManager<User> _userManager;
         readonly SignInManager<User> _signInManager;
 
         public AuthenticationsController(IUserService service,
-            IConfiguration config,
+            ITokenService tokenService,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IMapper mapper,
             ILogger<AuthenticationsController> logger)
              : base(logger)
         {
-            _config = config;
-            _service = service;
+            _tokenService = tokenService;
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
         }
 
         /// <summary>
-        /// Checks the username already exist in to the database
+        /// Checks is the username or the email already exist into the database
         /// </summary>
-        /// <param name="userName">Usename which is want to be check on database for prevent a dupplication</param>
-        /// <returns>Retruns result of DB check as boolen and the username which is searched int to the DB</returns>
+        /// <param name="userName">Usename to be check on database for prevent a dupplication</param>
+        /// <param name="eMail">EMail to be check on database for prevent a dupplication</param>
+        /// <returns>Retruns result of DB check as boolen results with the username and email which are searched into the DB</returns>
+        /// <response code="400">If userName parameter is null or empty, this is returns</response>
+        /// <response code="200">DB query result</response>
+        /// <response code="404">DB query result</response>
+        /// <response code="500">Empty payload with HTTP Status Code</response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserNameCheckResultVM>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(List<UserNameCheckResultVM>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IsUserExistVM))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(IsUserExistVM))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UserNameCheckResultVM>> UserNameIsExist(string userName)
+        public async Task<JsonResult> IsUserExist(string userName, string eMail)
         {
-            var isExist = await _service.AnyAsync(userName);
-            var model = new UserNameCheckResultVM()
-            { UserName = userName, IsExist = isExist };
+            if (userName.IsNullOrEmptyString() || eMail.IsNullOrEmptyString())
+                return new JsonAPIResult("", StatusCodes.Status400BadRequest);
 
-            if (isExist)
-                return Ok(model);
+            var eMailResult = await _userManager.FindByEmailAsync(eMail);
+            bool isEmailExist = eMailResult != null ||  (eMailResult != null && !eMailResult.Id.IsEmptyGuid());
+
+            var userNameResult = await _userManager.FindByNameAsync(userName);
+            bool isUserNameExist = userNameResult != null || (userNameResult != null && !userNameResult.Id.IsEmptyGuid());
+
+            var model = new IsUserExistVM()
+            {
+                UserName = userName,
+                EMail = eMail,
+                IsEMailExist = isEmailExist,
+                IsUserNameExist = isUserNameExist
+            };
+
+            if (isUserNameExist || isEmailExist)
+                return new JsonAPIResult(model, StatusCodes.Status200OK);
             else
-                return NotFound(model);
+                return new JsonAPIResult(model, StatusCodes.Status404NotFound);
         }
 
         /// <summary>
-        /// 
+        /// Creates a new user in the database
         /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
+        /// <param name="model">Contains data for the new user</param>
+        /// <returns>Data of the created user and the Token value</returns>
+        /// <response code="400">If posted data by the client is not valid, it returns APIResultVM which is contains error-codes</response>
+        /// <response code="201">Registered user data and the token returns</response>
+        /// <response code="422">It is similar request like 400, it contatins Identity Validation Errors</response>
+        /// <response code="500">Empty payload with HTTP Status Code</response>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(IEnumerable<string>))]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UserAuthenticationVM))]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Type = typeof(IEnumerable<IdentityError>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(APIResultWithRecVM<UserAuthenticationVM>))]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<JsonResult> Register(UserRegisterVM model)
         {
@@ -95,6 +111,7 @@ namespace SimpleChat.API.Controllers.V1
             User entity = _mapper.Map<UserRegisterVM, User>(model);
 
             entity.Id = Guid.NewGuid();
+            entity.LastLoginDateTime = DateTime.UtcNow;
             entity.CreateDateTime = DateTime.UtcNow;
 
             var identityResult = await _userManager.CreateAsync(entity, model.Password);
@@ -105,7 +122,13 @@ namespace SimpleChat.API.Controllers.V1
 
                 UserAuthenticationVM returnVM = new UserAuthenticationVM();
                 returnVM = _mapper.Map<User, UserAuthenticationVM>(entity);
-                returnVM.Token = GetToken(entity);
+
+                var claims = new Claim[] {
+                    new Claim(JwtRegisteredClaimNames.Sub, entity.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.UniqueName, entity.UserName)
+                };
+
+                returnVM.AccessToken = _tokenService.GenerateAccessToken(claims);
 
                 return new JsonAPIResult(APIResult.CreateVMWithRec<UserAuthenticationVM>(returnVM, true, entity.Id),
                     StatusCodes.Status201Created);
@@ -116,67 +139,5 @@ namespace SimpleChat.API.Controllers.V1
                     StatusCodes.Status422UnprocessableEntity);
             }
         }
-
-        [HttpGet]
-
-        public async Task<JsonResult> CreateToken(UserLoginVM model)
-        {
-            var loginResult = await _signInManager.PasswordSignInAsync(model.UserName, model.Password,
-                 isPersistent: false, lockoutOnFailure: false);
-
-            if (!loginResult.Succeeded)
-                return new JsonResult(APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01004));
-
-            var user = await _userManager.FindByNameAsync(model.UserName);
-            user.LastLoginDateTime = DateTime.UtcNow;
-            await _userManager.UpdateAsync(user);
-
-            var returnVM = _mapper.Map<User, UserAuthenticationVM>(user);
-            returnVM.Token = GetToken(user);
-
-            return new JsonResult(returnVM);
-        }
-
-        [HttpGet]
-        public async Task<JsonResult> RefreshToken()
-        {
-            var user = await _userManager.FindByNameAsync(
-                User.Identity.Name ??
-                User.Claims.Where(c => c.Properties.ContainsKey("unique_name")).Select(c => c.Value).FirstOrDefault()
-                );
-
-            return new JsonResult(APIResult.CreateVMWithRec<string>(GetToken(user), true));
-        }
-
-        #region Helper Methods
-
-        private String GetToken(User user)
-        {
-            var utcNow = DateTime.UtcNow;
-
-            var claims = new Claim[]
-            {
-                        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                        new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(JwtRegisteredClaimNames.Iat, utcNow.ToString())
-            };
-
-            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetValue<String>("Jwt:Key")));
-
-            var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
-            var jwt = new JwtSecurityToken(
-                signingCredentials: signingCredentials,
-                claims: claims,
-                notBefore: utcNow,
-                expires: utcNow.AddSeconds(_config.GetValue<int>("Jwt:ExpiryDuration")),
-                audience: _config.GetValue<String>("Jwt:Audience"),
-                issuer: _config.GetValue<String>("Jwt:Issuer")
-                );
-
-            return new JwtSecurityTokenHandler().WriteToken(jwt);
-        }
-
-        #endregion
     }
 }

@@ -175,6 +175,21 @@ namespace SimpleChat.Core
         /// </summary>
         public const string ERR02022 = "ERR02022";
 
+        /// <summary>
+        /// User dont have valid refresh token
+        /// </summary>
+        public const string ERR02023 = "ERR02023";
+
+        /// <summary>
+        /// Refresh tokens dont match
+        /// </summary>
+        public const string ERR02024 = "ERR02024";
+
+        /// <summary>
+        /// User already have a valid token
+        /// </summary>
+        public const string ERR02025 = "ERR02025";
+
         #endregion
 
         #region ERR03 - ModelState Errors

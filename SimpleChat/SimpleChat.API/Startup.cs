@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SimpleChat.API.Config;
+using SimpleChat.Core.Auth;
 using SimpleChat.Core.Validation;
 using SimpleChat.Data;
 using SimpleChat.Data.Service;
@@ -82,7 +83,7 @@ namespace SimpleChat.API
 
             #region Entity Framework and Identity Framework, Register DbContext
 
-            services.AddIdentity<User, Role>()
+            services.AddIdentity<User, Role>(x => x.User.RequireUniqueEmail = true)
                 .AddErrorDescriber<IdentityErrorDescriberForAPIStatusCodes>()
                 .AddEntityFrameworkStores<SimpleChatDbContext>()
                 .AddDefaultTokenProviders();
@@ -262,6 +263,9 @@ namespace SimpleChat.API
             services.AddTransient<IChatRoomUserService, ChatRoomUserService>();
             services.AddTransient<IMessageService, MessageService>();
             services.AddTransient<IUserService, UserService>();
+
+            services.AddSingleton<IConfiguration>(provider => Configuration);
+            services.AddTransient<ITokenService, TokenService>();
 
             // Assembly.GetAssembly(typeof(SimpleChatDbContext))
             //     .GetTypes()

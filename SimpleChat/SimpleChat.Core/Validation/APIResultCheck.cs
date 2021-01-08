@@ -7,7 +7,7 @@ namespace SimpleChat.Core.Validation
 {
     public static class APIResultCheck
     {
-        public static bool ResultIsTrue(this IResultVM value)
+        public static bool ResultIsTrue(this IAPIResultVM value)
         {
             if (value.IsNull())
                 return false;
@@ -15,7 +15,7 @@ namespace SimpleChat.Core.Validation
             return value.IsSuccessful;
         }
 
-        public static bool ResultIsNotTrue(this IResultVM value)
+        public static bool ResultIsNotTrue(this IAPIResultVM value)
         {
             return !ResultIsTrue(value);
         }

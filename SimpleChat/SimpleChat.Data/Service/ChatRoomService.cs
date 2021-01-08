@@ -78,7 +78,7 @@ namespace SimpleChat.Data.Service
             return rec;
         }
 
-        public override async Task<APIResultVM> AddAsync(ChatRoomAddVM model, Guid? userId = null, bool isCommit = true)
+        public override async Task<IAPIResultVM> AddAsync(ChatRoomAddVM model, Guid? userId = null, bool isCommit = true)
         {
             if (model.IsMain)
             {
@@ -107,7 +107,7 @@ namespace SimpleChat.Data.Service
             return result;
         }
 
-        public override async Task<APIResultVM> UpdateAsync(Guid id, ChatRoomUpdateVM model, Guid? userId = null, bool isCommit = true)
+        public override async Task<IAPIResultVM> UpdateAsync(Guid id, ChatRoomUpdateVM model, Guid? userId = null, bool isCommit = true)
         {
             if (model.IsMain && Repository.Query().Any(a => a.Id != id && a.IsMain))
                 return APIResult.CreateVMWithStatusCode(false, id, APIStatusCode.ERR01005);
@@ -147,7 +147,7 @@ namespace SimpleChat.Data.Service
             return result;
         }
 
-        public override async Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true)
+        public override async Task<IAPIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true)
         {
             var ChatRoom = await base.GetByIdAsync(id);
             if (ChatRoom == null || ChatRoom.IsMain)

@@ -23,6 +23,12 @@ namespace SimpleChat.Domain
         public DateTime CreateDateTime { get; set; }
 
         public DateTime? LastLoginDateTime { get; set; }
+
+        public string AccessToken { get; set; }
+        public DateTime AccessTokenExpiryTime { get; set; }
+
+        public string RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set; }
     }
 
     public class User : UserBase

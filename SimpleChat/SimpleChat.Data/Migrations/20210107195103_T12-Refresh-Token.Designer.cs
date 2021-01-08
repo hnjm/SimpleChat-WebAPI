@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimpleChat.Data;
 
 namespace SimpleChat.Data.Migrations
 {
     [DbContext(typeof(SimpleChatDbContext))]
-    partial class SimpleChatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210107195103_T12-Refresh-Token")]
+    partial class T12RefreshToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -270,12 +272,6 @@ namespace SimpleChat.Data.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
-
-                    b.Property<string>("AccessToken")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("AccessTokenExpiryTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()

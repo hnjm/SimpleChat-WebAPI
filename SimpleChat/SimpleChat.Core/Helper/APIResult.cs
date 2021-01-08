@@ -26,13 +26,13 @@ namespace SimpleChat.Core.Helper
             return vm;
         }
 
-        public static APIResultVM CreateVMWithRec<T>(
+        public static APIResultWithRecVM<T> CreateVMWithRec<T>(
             T rec,
             bool isSuccessful = false,
             Guid? recId = null,
             IEnumerable<APIResultErrorCodeVM> errors = null)
         {
-            var vm = new APIResultVM()
+            var vm = new APIResultWithRecVM<T>()
             {
                 IsSuccessful = isSuccessful,
                 RecId = recId,
@@ -83,7 +83,7 @@ namespace SimpleChat.Core.Helper
                 modelStateDictionary.GetErrors());
         }
 
-        public static APIResultVM CreateVMWithRecAndIdentityErrors<T>(
+        public static APIResultWithRecVM<T> CreateVMWithRecAndIdentityErrors<T>(
             T rec,
             bool isSuccessful = false,
             Guid? recId = null,
