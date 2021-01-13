@@ -61,6 +61,22 @@ namespace SimpleChat.Core
         /// </summary>
         public const string ERR01007 = "ERR01007";
 
+        /// <summary>
+        ///  The record couldnt add to DB
+        /// </summary>
+        public const string ERR01008 = "ERR01008";
+
+        /// <summary>
+        ///  You cannot get all chat room records whitout a administrator role
+        /// </summary>
+        public const string ERR01009 = "ERR01009";
+
+        /// <summary>
+        ///  User couldnt update
+        /// </summary>
+        public const string ERR01010 = "ERR01010";
+
+
         #endregion
 
         #region ERR02 - Identity Errors

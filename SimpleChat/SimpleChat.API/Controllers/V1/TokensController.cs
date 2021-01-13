@@ -29,18 +29,28 @@ using SimpleChat.Domain;
 
 namespace SimpleChat.API.Controllers.V1
 {
+    /// <summary>
+    /// Operates token operations, like create, refresh and revoke
+    /// </summary>
     [ApiVersion("1.0")]
     [EnableCors(ConstantValues.DefaultAuthCorsPolicy)]
     [Route("api/[controller]/[action]")]
     [AllowAnonymous]
     public class TokensController : DefaultApiController
     {
+        #region Properties and Fields
+
         private ITokenService _tokenService;
         private readonly IMapper _mapper;
 
         readonly UserManager<User> _userManager;
         readonly SignInManager<User> _signInManager;
 
+        #endregion
+
+        #region Ctor
+
+#pragma warning disable 1591
         public TokensController(IUserService service,
             ITokenService tokenService,
             UserManager<User> userManager,
@@ -54,6 +64,9 @@ namespace SimpleChat.API.Controllers.V1
             _signInManager = signInManager;
             _mapper = mapper;
         }
+#pragma warning restore 1591
+
+        #endregion
 
         /// <summary>
         /// Creates a token for a valid user
@@ -69,7 +82,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserAuthenticationVM))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<JsonResult> Create(UserLoginVM model)
+        public async Task<JsonResult> Create([FromBody] UserLoginVM model)
         {
             if (!ModelState.IsValid)
                 return new JsonAPIResult(APIResult.CreateVMWithModelState(modelStateDictionary: ModelState),
@@ -91,7 +104,8 @@ namespace SimpleChat.API.Controllers.V1
             {
                 var claims = new Claim[] {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                    new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
+                    new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+                    new Claim("UserId", user.Id.ToString())
                 };
 
                 user.LastLoginDateTime = DateTime.UtcNow;
@@ -127,7 +141,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenRefreshVM))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<JsonResult> Refresh(TokenRefreshVM model)
+        public async Task<JsonResult> Refresh([FromBody] TokenRefreshVM model)
         {
             try
             {
@@ -151,6 +165,8 @@ namespace SimpleChat.API.Controllers.V1
                 if (user.RefreshTokenExpiryTime <= DateTime.UtcNow)
                     return new JsonAPIResult(APIResult.CreateVMWithStatusCode(statusCode: APIStatusCode.ERR02023),
                         StatusCodes.Status400BadRequest);
+
+                principal.Claims.Append(new Claim("UserId", user.Id.ToString()));
 
                 var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims);
                 var newRefreshToken = _tokenService.GenerateRefreshToken();

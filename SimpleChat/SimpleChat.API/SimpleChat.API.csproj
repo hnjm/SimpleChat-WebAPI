@@ -17,7 +17,6 @@
     </PackageReference>
     <!-- Mappers for objects -->
     <PackageReference Include="AutoMapper" Version="10.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.1" />
     <!-- Serializers -->
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <!-- Dependency Injection Libs -->

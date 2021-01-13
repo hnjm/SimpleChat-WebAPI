@@ -21,7 +21,9 @@ namespace SimpleChat.Data.Service
         #region Ctor
         private IChatRoomUserService _chatRoomUserService;
 
-        public ChatRoomService(UnitOfWork uow, IMapper mapper, ILogger<IRepository<ChatRoom>> repositoryLogger,
+        public ChatRoomService(UnitOfWork uow,
+            IMapper mapper,
+            ILogger<IRepository<ChatRoom>> repositoryLogger,
             IChatRoomUserService chatRoomUserService)
             : base(uow, mapper, repositoryLogger)
         {
@@ -30,7 +32,7 @@ namespace SimpleChat.Data.Service
 
         #endregion
 
-        #region Methods                
+        #region Methods
 
 
         public List<ChatRoomVM> GetByUserId(Guid userId)
@@ -40,7 +42,9 @@ namespace SimpleChat.Data.Service
                 return new List<ChatRoomVM>();
             }
 
-            var ChatRooms = this.Repository.Query().Where(a => !a.IsPrivate || (a.Users.Any(x => x.UserId == userId))).ToList().Select(a => new ChatRoomVM()
+            var ChatRooms = Query().Where(a => !a.IsPrivate
+                || (a.Users.Any(x => x.UserId == userId)))
+                .AsEnumerable().Select(a => new ChatRoomVM()
             {
                 Id = a.Id,
                 Name = a.Name,
@@ -48,7 +52,8 @@ namespace SimpleChat.Data.Service
                 IsPrivate = a.IsPrivate,
                 IsMain = a.IsMain,
                 IsOneToOneChat = a.IsOneToOneChat,
-                Users = _chatRoomUserService.Query().Where(x => x.ChatRoomId == a.Id).Select(s => s.UserId).ToList()
+                    Users = _chatRoomUserService.Query().Where(x => x.ChatRoomId == a.Id)
+                    .Select(s => s.UserId).ToList()
             }).ToList();
 
             return ChatRooms;
@@ -61,7 +66,9 @@ namespace SimpleChat.Data.Service
                 return new List<Guid>();
             }
 
-            var users = _chatRoomUserService.Query().Where(a => a.ChatRoomId == chatRoomId).Select(a => a.UserId).ToList();
+            var users = _chatRoomUserService.Query()
+                .Where(a => a.ChatRoomId == chatRoomId)
+                .Select(a => a.UserId).ToList();
 
             return users;
         }
@@ -72,7 +79,9 @@ namespace SimpleChat.Data.Service
 
             if (rec != null)
             {
-                rec.Users = _chatRoomUserService.Query().Where(a => a.ChatRoomId == id).Select(a => a.Id).ToList();
+                rec.Users = _chatRoomUserService.Query()
+                    .Where(a => a.ChatRoomId == id)
+                    .Select(a => a.Id).ToList();
             }
 
             return rec;
@@ -97,7 +106,6 @@ namespace SimpleChat.Data.Service
                     item.ChatRoomId = result.RecId.Value;
                     item.UserId = id;
 
-
                     var userResult = await _chatRoomUserService.AddAsync(item, userId, true);
                     if (userResult.ResultIsNotTrue())
                         return userResult;
@@ -112,7 +120,6 @@ namespace SimpleChat.Data.Service
             if (model.IsMain && Repository.Query().Any(a => a.Id != id && a.IsMain))
                 return APIResult.CreateVMWithStatusCode(false, id, APIStatusCode.ERR01005);
 
-
             var result = await base.UpdateAsync(id, model, userId, true);
             if (result.ResultIsNotTrue())
                 return result;
@@ -121,8 +128,8 @@ namespace SimpleChat.Data.Service
             {
                 foreach (var item in model.Users)
                 {
-                    var ChatRoomUser = await _chatRoomUserService.GetByIdAsync(item);
-                    if (ChatRoomUser == null)
+                    bool isExist = await _chatRoomUserService.AnyAsync(a => a.ChatRoomId == id && a.UserId == item);
+                    if (!isExist)
                     {
                         ChatRoomUserAddVM rec = new ChatRoomUserAddVM();
                         rec.ChatRoomId = id;
@@ -135,19 +142,21 @@ namespace SimpleChat.Data.Service
                 }
             }
 
-            var removedUsers = _chatRoomUserService.Query().Where(a => a.ChatRoomId == id && (model.Users==null || !model.Users.Any(x => x == a.UserId))).Select(a => a.Id).ToList();
+            var removedUsers = _chatRoomUserService.Query().Where(a => a.ChatRoomId == id
+                && (model.Users==null || !model.Users.Any(x => x == a.UserId))).Select(a => a.Id).ToList();
             if (removedUsers != null)
             {
                 foreach (var item in removedUsers)
                 {
-                    await _chatRoomUserService.DeleteAsync(item, userId, true);
+                    await _chatRoomUserService.DeleteAsync(item, userId, false, true);
                 }
             }
 
             return result;
         }
 
-        public override async Task<IAPIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true)
+        public override async Task<IAPIResultVM> DeleteAsync(Guid id, Guid? userId = null,
+            bool shouldBeOwner = false, bool isCommit = true)
         {
             var ChatRoom = await base.GetByIdAsync(id);
             if (ChatRoom == null || ChatRoom.IsMain)
@@ -163,10 +172,9 @@ namespace SimpleChat.Data.Service
             {
                 foreach (var item in users)
                 {
-                    await _chatRoomUserService.DeleteAsync(item, userId, true);
+                    await _chatRoomUserService.DeleteAsync(item, userId, false, true);
                 }
             }
-
 
             return result;
         }

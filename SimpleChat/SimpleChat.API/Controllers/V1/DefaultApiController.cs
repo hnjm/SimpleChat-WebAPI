@@ -10,7 +10,9 @@ using Microsoft.Extensions.Logging;
 
 namespace SimpleChat.API.Controllers.V1
 {
-    //TODO: REFACTOR IT
+    /// <summary>
+    /// Default controller, it contains basic functionality of the API Controller
+    /// </summary>
     [Authorize]
     [ApiController]
     [ApiVersion("1.0")]
@@ -18,12 +20,23 @@ namespace SimpleChat.API.Controllers.V1
     [Route("api/[controller]")]
     public abstract class DefaultApiController : ControllerBase
     {
+        #region Properties and Fields
 
+
+
+        #endregion
+
+        #region Ctor
+
+#pragma warning disable 1591
         protected ILogger<DefaultApiController> _logger;
 
         public DefaultApiController(ILogger<DefaultApiController> logger)
         {
             this._logger = logger;
         }
+        #pragma warning restore 1591
+
+        #endregion
     }
 }

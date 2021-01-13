@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SimpleChat.API
@@ -77,7 +78,10 @@ namespace SimpleChat.API
             }).ConfigureApiBehaviorOptions(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
-            }).AddNewtonsoftJson();
+            }).AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNamingPolicy = null;
+            });
 
             #endregion
 
@@ -314,8 +318,9 @@ namespace SimpleChat.API
             }
             else
             {
-                app.UseHttpsRedirection();
             }
+
+            app.UseHttpsRedirection();
 
             app.UseRouting();
             app.UseCors(ConstantValues.DefaultCorsPolicy);

@@ -214,7 +214,7 @@ namespace SimpleChat.Data.SubStructure
 
                 D entity = await _uow.Repository<D>(_repositoryLogger).GetByIDAysnc(id);
                 if (entity.IsNull())
-                    return APIResult.CreateVMWithStatusCode(false, id, APIStatusCode.ERR01002);
+                    return APIResult.CreateVMWithStatusCode(false, id, APIStatusCode.ERR01003);
 
                 entity = _mapper.Map<U, D>(model, entity);
 

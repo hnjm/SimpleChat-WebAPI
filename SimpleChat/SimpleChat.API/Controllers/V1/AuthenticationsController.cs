@@ -23,18 +23,32 @@ using SimpleChat.Domain;
 
 namespace SimpleChat.API.Controllers.V1
 {
+    /// <summary>
+    /// Purpose of the usage, when an user is unauthorized to
+    /// create a new user record on the DB, and make available
+    /// to use TokenController for futher needs.
+    ///
+    /// You should use TokenController after the registration of the new user.
+    /// </summary>
     [ApiVersion("1.0")]
     [EnableCors(ConstantValues.DefaultAuthCorsPolicy)]
     [Route("api/[controller]/[action]")]
     [AllowAnonymous]
     public class AuthenticationsController : DefaultApiController
     {
+        #region Properties and Fields
+
         private ITokenService _tokenService;
         private readonly IMapper _mapper;
 
         readonly UserManager<User> _userManager;
         readonly SignInManager<User> _signInManager;
 
+        #endregion
+
+        #region Ctor
+
+#pragma warning disable 1591
         public AuthenticationsController(IUserService service,
             ITokenService tokenService,
             UserManager<User> userManager,
@@ -48,6 +62,9 @@ namespace SimpleChat.API.Controllers.V1
             _signInManager = signInManager;
             _mapper = mapper;
         }
+#pragma warning restore 1591
+
+        #endregion
 
         /// <summary>
         /// Checks is the username or the email already exist into the database
@@ -63,7 +80,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IsUserExistVM))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(IsUserExistVM))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<JsonResult> IsUserExist(string userName, string eMail)
+        public async Task<JsonResult> IsUserExist([FromQuery] string userName, [FromQuery] string eMail)
         {
             if (userName.IsNullOrEmptyString() || eMail.IsNullOrEmptyString())
                 return new JsonAPIResult("", StatusCodes.Status400BadRequest);
@@ -102,7 +119,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(APIResultWithRecVM<UserAuthenticationVM>))]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<JsonResult> Register(UserRegisterVM model)
+        public async Task<JsonResult> Register([FromBody] UserRegisterVM model)
         {
             if (!ModelState.IsValid)
                 return new JsonAPIResult(APIResult.CreateVMWithModelState(modelStateDictionary: ModelState),
@@ -114,6 +131,17 @@ namespace SimpleChat.API.Controllers.V1
             entity.LastLoginDateTime = DateTime.UtcNow;
             entity.CreateDateTime = DateTime.UtcNow;
 
+            var claims = new Claim[] {
+                new Claim(JwtRegisteredClaimNames.Sub, entity.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, entity.UserName),
+                new Claim("UserId", entity.Id.ToString())
+            };
+
+            entity.AccessToken = _tokenService.GenerateAccessToken(claims);
+            entity.RefreshToken = _tokenService.GenerateRefreshToken();
+            entity.AccessTokenExpiryTime = new JwtSecurityTokenHandler().ReadToken(entity.AccessToken)?.ValidTo ?? DateTime.MinValue;
+            entity.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1);
+
             var identityResult = await _userManager.CreateAsync(entity, model.Password);
 
             if (identityResult.Succeeded)
@@ -122,13 +150,6 @@ namespace SimpleChat.API.Controllers.V1
 
                 UserAuthenticationVM returnVM = new UserAuthenticationVM();
                 returnVM = _mapper.Map<User, UserAuthenticationVM>(entity);
-
-                var claims = new Claim[] {
-                    new Claim(JwtRegisteredClaimNames.Sub, entity.Id.ToString()),
-                    new Claim(JwtRegisteredClaimNames.UniqueName, entity.UserName)
-                };
-
-                returnVM.AccessToken = _tokenService.GenerateAccessToken(claims);
 
                 return new JsonAPIResult(APIResult.CreateVMWithRec<UserAuthenticationVM>(returnVM, true, entity.Id),
                     StatusCodes.Status201Created);

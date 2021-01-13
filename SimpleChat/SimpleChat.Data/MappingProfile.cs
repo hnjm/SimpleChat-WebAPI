@@ -14,66 +14,86 @@ namespace SimpleChat.Data
     {
         public MappingProfile()
         {
-            //CreateMap<Suggestion, SuggestionVM>()
-            //    .ForMember(m => m.CategoryName, o => o.MapFrom(s => s.Category.Name))
-            //    .ForMember(m => m.CreateById, o => o.MapFrom(s => s.CreateBy))
-            //    .ForMember(m => m.CreateDateTime, o => o.MapFrom(s => s.CreateDT))
-            //    .ForMember(m => m.TotalReaction, o => o.MapFrom(s => s.DislikeAmount + s.LikeAmount + ((s.SuggestionComments != null ? s.SuggestionComments.Count : 0) * 2)))
-            //    .ForMember(m => m.CommentCount, o => o.MapFrom(s => s.SuggestionComments != null ? s.SuggestionComments.Count : 0));
+            #region Chat Room User
+            CreateMap<ChatRoom, ChatRoomVM>().ForMember(x => x.Users, opt => opt.Ignore());
+            CreateMap<ChatRoom, ChatRoomAddVM>().ForMember(x => x.Users, opt => opt.Ignore());
+            CreateMap<ChatRoom, ChatRoomUpdateVM>().ForMember(x => x.Users, opt => opt.Ignore());
 
-            //CreateMap<SuggestionVM, Suggestion>()
-            //    .ForMember(m => m.CreateBy, o => o.Ignore())
-            //    .ForMember(m => m.LikeAmount, o => o.Ignore())
-            //    .ForMember(m => m.DislikeAmount, o => o.Ignore());
+            CreateMap<ChatRoomVM, ChatRoom>().ForMember(x => x.Users, opt => opt.Ignore());
+            CreateMap<ChatRoomVM, ChatRoomAddVM>();
+            CreateMap<ChatRoomVM, ChatRoomUpdateVM>();
 
-            //CreateMap<SuggestionVM, SuggestionSaveVM>()
-            //    .ForMember(m => m.CreateBy, o => o.MapFrom(s => s.CreateById));
+            CreateMap<ChatRoomAddVM, ChatRoom>().ForMember(x => x.Users, opt => opt.Ignore());
+            CreateMap<ChatRoomAddVM, ChatRoomVM>();
+            CreateMap<ChatRoomAddVM, ChatRoomUpdateVM>();
 
-            //CreateMap<SuggestionSaveVM, Suggestion>()
-            //    .ForMember(m => m.CreateBy, o => o.Ignore())
-            //    .ForMember(m => m.CreateDT, o => o.Ignore());
-            //CreateMap<Suggestion, SuggestionSaveVM>();
+            CreateMap<ChatRoomUpdateVM, ChatRoom>().ForMember(x => x.Users, opt => opt.Ignore());
+            CreateMap<ChatRoomUpdateVM, ChatRoomVM>();
+            CreateMap<ChatRoomUpdateVM, ChatRoomAddVM>();
+            #endregion
 
+            #region Chat Room User
+            CreateMap<ChatRoomUser, ChatRoomUserVM>();
+            CreateMap<ChatRoomUser, ChatRoomUserAddVM>();
+            CreateMap<ChatRoomUser, ChatRoomUserUpdateVM>();
 
-            //CreateMap<SuggestionComment, SuggestionCommentVM>();
-            //// .ForMember(m => m.CreateBy, o => o.MapFrom(s => s.CreateBy));
-            //CreateMap<SuggestionCommentVM, SuggestionCommentSaveVM>().ReverseMap();
-            //CreateMap<SuggestionComment, SuggestionCommentSaveVM>().ReverseMap();
+            CreateMap<ChatRoomUserVM, ChatRoomUser>();
+            CreateMap<ChatRoomUserVM, ChatRoomUserAddVM>();
+            CreateMap<ChatRoomUserVM, ChatRoomUserUpdateVM>();
 
-            //CreateMap<SuggestionReaction, SuggestionReactionVM>().ReverseMap();
-            //CreateMap<SuggestionReactionVM, SuggestionReactionSaveVM>().ReverseMap();
-            //CreateMap<SuggestionReaction, SuggestionReactionSaveVM>().ReverseMap();
+            CreateMap<ChatRoomUserAddVM, ChatRoomUser>();
+            CreateMap<ChatRoomUserAddVM, ChatRoomUserVM>();
+            CreateMap<ChatRoomUserAddVM, ChatRoomUserUpdateVM>();
 
-            //CreateMap<Category, CategoryVM>()
-            //    .ForMember(m => m.CreateById, o => o.MapFrom(s => s.CreateBy))
-            //    .ForMember(m => m.CreateDateTime, o => o.MapFrom(s => s.CreateDT));
+            CreateMap<ChatRoomUserUpdateVM, ChatRoomUser>();
+            CreateMap<ChatRoomUserUpdateVM, ChatRoomUserVM>();
+            CreateMap<ChatRoomUserUpdateVM, ChatRoomUserAddVM>();
+            #endregion
 
-            //CreateMap<CategorySaveVM, Category>()
-            //    .ForMember(m => m.CreateBy, o => o.Ignore())
-            //    .ForMember(m => m.CreateDT, o => o.Ignore());
-            //CreateMap<Category, CategorySaveVM>();
-            //CreateMap<CategoryVM, CategorySaveVM>().ReverseMap();
+            #region Message
+            CreateMap<Message, MessageVM>();
+            CreateMap<Message, MessageAddVM>();
+            CreateMap<Message, MessageUpdateVM>();
 
-            //CreateMap<User, ProfileVM>();
+            CreateMap<MessageVM, Message>();
+            CreateMap<MessageVM, MessageAddVM>();
+            CreateMap<MessageVM, MessageUpdateVM>();
 
+            CreateMap<MessageAddVM, Message>();
+            CreateMap<MessageAddVM, MessageVM>();
+            CreateMap<MessageAddVM, MessageUpdateVM>();
 
-            CreateMap<ChatRoom, ChatRoomVM>().ReverseMap();
-            CreateMap<ChatRoom, ChatRoomAddVM>().ReverseMap();
-            CreateMap<ChatRoom, ChatRoomUpdateVM>().ReverseMap();
+            CreateMap<MessageUpdateVM, Message>();
+            CreateMap<MessageUpdateVM, MessageVM>();
+            CreateMap<MessageUpdateVM, MessageAddVM>();
+            #endregion
 
-            CreateMap<ChatRoomUser, ChatRoomUserVM>().ReverseMap();
-            CreateMap<ChatRoomUser, ChatRoomUserAddVM>().ReverseMap();
-            CreateMap<ChatRoomUser, ChatRoomUserUpdateVM>().ReverseMap();
+            #region User & Auth
+            CreateMap<User, UserVM>();
+            CreateMap<User, UserRegisterVM>();
+            CreateMap<User, UserUpdateVM>();
+            CreateMap<User, UserAuthenticationVM>();
 
-            CreateMap<Message, MessageVM>().ReverseMap();
-            CreateMap<Message, MessageAddVM>().ReverseMap();
-            CreateMap<Message, MessageUpdateVM>().ReverseMap();
+            CreateMap<UserVM, User>();
+            CreateMap<UserVM, UserRegisterVM>();
+            CreateMap<UserVM, UserUpdateVM>();
+            CreateMap<UserVM, UserAuthenticationVM>();
 
             CreateMap<UserRegisterVM, User>();
-            CreateMap<User, UserAuthenticationVM>();
-            // CreateMap<Message, MessageUpdateVM>().ReverseMap();
-            // CreateMap<Message, MessageUpdateVM>().ReverseMap();
-            // CreateMap<Message, MessageUpdateVM>().ReverseMap();
+            CreateMap<UserRegisterVM, UserVM>();
+            CreateMap<UserRegisterVM, UserUpdateVM>();
+            CreateMap<UserRegisterVM, UserAuthenticationVM>();
+
+            CreateMap<UserUpdateVM, User>();
+            CreateMap<UserUpdateVM, UserVM>();
+            CreateMap<UserUpdateVM, UserRegisterVM>();
+            CreateMap<UserUpdateVM, UserAuthenticationVM>();
+
+            CreateMap<UserAuthenticationVM, User>();
+            CreateMap<UserAuthenticationVM, UserVM>();
+            CreateMap<UserAuthenticationVM, UserRegisterVM>();
+            CreateMap<UserAuthenticationVM, UserUpdateVM>();
+            #endregion
         }
     }
 }

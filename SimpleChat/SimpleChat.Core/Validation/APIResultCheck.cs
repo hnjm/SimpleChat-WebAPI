@@ -7,17 +7,19 @@ namespace SimpleChat.Core.Validation
 {
     public static class APIResultCheck
     {
-        public static bool ResultIsTrue(this IAPIResultVM value)
+        #nullable enable
+        public static bool ResultIsTrue(this IAPIResultVM? value)
         {
-            if (value.IsNull())
+            if (value == null || value.IsNull())
                 return false;
 
             return value.IsSuccessful;
         }
 
-        public static bool ResultIsNotTrue(this IAPIResultVM value)
+        public static bool ResultIsNotTrue(this IAPIResultVM? value)
         {
             return !ResultIsTrue(value);
         }
+        #nullable disable
     }
 }
