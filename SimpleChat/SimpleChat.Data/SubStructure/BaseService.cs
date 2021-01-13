@@ -12,6 +12,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SimpleChat.Core;
+using Sentry;
 
 namespace SimpleChat.Data.SubStructure
 {
@@ -72,7 +73,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception ex)
             {
-                //_logger.LogError("Repository.Query", ex);
+                SentrySdk.CaptureException(ex);
                 return null;
             }
         }
@@ -87,7 +88,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                //_logger.LogError("BaseService.AnyAsync", e);
+                SentrySdk.CaptureException(e);
                 return false;
             }
         }
@@ -102,7 +103,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                //_logger.LogError("BaseService.AnyAsync", e);
+                SentrySdk.CaptureException(e);
                 return false;
             }
         }
@@ -118,7 +119,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                //_logger.LogError("BaseService.GetByIdAsync", e);
+                SentrySdk.CaptureException(e);
                 return null;
             }
         }
@@ -135,7 +136,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                //_logger.LogError("BaseService.GetAllAsync", e);
+                SentrySdk.CaptureException(e);
                 return null;
             }
         }
@@ -152,7 +153,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                //_logger.LogError("BaseService.GetAllAsync", e);
+                SentrySdk.CaptureException(e);
                 return null;
             }
         }
@@ -171,7 +172,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                //_logger.LogError("BaseService.GetAllAsync", e);
+                SentrySdk.CaptureException(e);
                 return null;
             }
         }
@@ -202,7 +203,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                //_logger.LogError("BaseService.AddAsync", e);
+                SentrySdk.CaptureException(e);
                 return APIResult.CreateVM();
             }
         }
@@ -233,7 +234,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                //_logger.LogError("BaseService.UpdateAsync", e);
+                SentrySdk.CaptureException(e);
                 return APIResult.CreateVM();
             }
         }
@@ -266,7 +267,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                //_logger.LogError("BaseService.DeleteAsync", e);
+                SentrySdk.CaptureException(e);
                 return APIResult.CreateVM();
             }
         }
@@ -296,7 +297,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                //_logger.LogError("BaseService.ReverseDeleteAsync", e);
+                SentrySdk.CaptureException(e);
                 return APIResult.CreateVM();
             }
         }
@@ -311,7 +312,7 @@ namespace SimpleChat.Data.SubStructure
             }
             catch (Exception e)
             {
-                //_logger.LogError("BaseService.CommitAsync", e);
+                SentrySdk.CaptureException(e);
                 return APIResult.CreateVM();
             }
         }

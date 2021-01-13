@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Sentry;
+using Sentry.Protocol;
 using SimpleChat.API.Config;
 using SimpleChat.Core;
 using SimpleChat.Core.Auth;
@@ -43,8 +45,8 @@ namespace SimpleChat.API.Controllers.V1
         private ITokenService _tokenService;
         private readonly IMapper _mapper;
 
-        readonly UserManager<User> _userManager;
-        readonly SignInManager<User> _signInManager;
+        readonly UserManager<Domain.User> _userManager;
+        readonly SignInManager<Domain.User> _signInManager;
 
         #endregion
 
@@ -53,8 +55,8 @@ namespace SimpleChat.API.Controllers.V1
 #pragma warning disable 1591
         public TokensController(IUserService service,
             ITokenService tokenService,
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
+            UserManager<Domain.User> userManager,
+            SignInManager<Domain.User> signInManager,
             IMapper mapper,
             ILogger<TokensController> logger)
              : base(logger)
@@ -120,8 +122,9 @@ namespace SimpleChat.API.Controllers.V1
                 return new JsonAPIResult(APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01001),
                     StatusCodes.Status404NotFound);
 
-            var returnVM = _mapper.Map<User, UserAuthenticationVM>(user);
+            var returnVM = _mapper.Map<Domain.User, UserAuthenticationVM>(user);
 
+            SentrySdk.CaptureMessage($"User {user.UserName} is created an access token", SentryLevel.Info);
             return new JsonAPIResult(returnVM, StatusCodes.Status200OK);
         }
 
@@ -178,6 +181,7 @@ namespace SimpleChat.API.Controllers.V1
                     return new JsonAPIResult(APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01001),
                         StatusCodes.Status409Conflict);
 
+                SentrySdk.CaptureMessage($"User: {user.UserName} refreshed its access token", SentryLevel.Info);
                 return new JsonAPIResult(APIResult.CreateVMWithRec<TokenRefreshVM>(new TokenRefreshVM()
                 {
                     AccessToken = newAccessToken,
@@ -186,10 +190,12 @@ namespace SimpleChat.API.Controllers.V1
             }
             catch (SecurityTokenException stEx)
             {
+                SentrySdk.CaptureException(stEx);
                 return new JsonAPIResult("", StatusCodes.Status500InternalServerError);
             }
             catch (Exception ex)
             {
+                SentrySdk.CaptureException(ex);
                 return new JsonAPIResult("", StatusCodes.Status500InternalServerError);
             }
         }
@@ -224,6 +230,7 @@ namespace SimpleChat.API.Controllers.V1
                 return new JsonAPIResult(APIResult.CreateVMWithStatusCode(false, null, APIStatusCode.ERR01001),
                     StatusCodes.Status409Conflict);
 
+            SentrySdk.CaptureMessage($"Refresh token of the user({user.UserName}) is revoked", SentryLevel.Info);
             return NoContent();
         }
     }
