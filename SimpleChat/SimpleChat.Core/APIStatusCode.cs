@@ -206,6 +206,11 @@ namespace SimpleChat.Core
         /// </summary>
         public const string ERR02025 = "ERR02025";
 
+        /// <summary>
+        /// The token is not matching with active/expired tokens
+        /// </summary>
+        public const string ERR02026 = "ERR02026";
+
         #endregion
 
         #region ERR03 - ModelState Errors

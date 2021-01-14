@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Sentry;
 
 namespace SimpleChat.Core.Auth
 {
@@ -15,6 +16,7 @@ namespace SimpleChat.Core.Auth
         string GenerateAccessToken(IEnumerable<Claim> claims);
         string GenerateRefreshToken();
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+        bool IsTokenValid(string token);
     }
 
     public class TokenService : ITokenService
@@ -33,7 +35,8 @@ namespace SimpleChat.Core.Auth
             claims.Concat(new Claim[]
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, utcNow.ToString())
+                new Claim(JwtRegisteredClaimNames.Iat, utcNow.ToString()),
+                new Claim(JwtRegisteredClaimNames.Exp, utcNow.AddSeconds(_config.GetValue<int>("Jwt:ExpiryDuration")).ToString())
             }.AsEnumerable());
 
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetValue<String>("Jwt:Key")));
@@ -48,7 +51,7 @@ namespace SimpleChat.Core.Auth
                 issuer: _config.GetValue<String>("Jwt:Issuer")
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(tokeOptions);;
+            return new JwtSecurityTokenHandler().WriteToken(tokeOptions); ;
         }
         public string GenerateRefreshToken()
         {
@@ -77,6 +80,65 @@ namespace SimpleChat.Core.Auth
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");
             return principal;
+        }
+
+        public bool IsTokenValid(string token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetValue<String>("Jwt:Key"))),
+                ValidateLifetime = true
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken securityToken;
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+
+                var jwtSecurityToken = securityToken as JwtSecurityToken;
+                if (jwtSecurityToken == null || principal.Identity == null || !principal.Identity.IsAuthenticated)
+                    return false;
+                else
+                    return true;
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                return false;
+            }
+            catch (SecurityTokenNotYetValidException)
+            {
+                return false;
+            }
+            catch (SecurityTokenNoExpirationException)
+            {
+                return false;
+            }
+            catch (SecurityTokenInvalidLifetimeException)
+            {
+                return false;
+            }
+            catch (SecurityTokenInvalidSignatureException)
+            {
+                return false;
+            }
+            catch (SecurityTokenEncryptionKeyNotFoundException)
+            {
+                return false;
+            }
+            catch (SecurityTokenDecryptionFailedException)
+            {
+                return false;
+            }
+            catch (Exception e)
+            {
+                SentrySdk.CaptureException(e);
+                return false;
+            }
         }
     }
 }

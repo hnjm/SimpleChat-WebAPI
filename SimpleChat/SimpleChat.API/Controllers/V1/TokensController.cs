@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -28,6 +29,8 @@ using SimpleChat.Core.ViewModel;
 using SimpleChat.Data.Service;
 using SimpleChat.Data.ViewModel.User;
 using SimpleChat.Domain;
+using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace SimpleChat.API.Controllers.V1
 {
@@ -152,7 +155,18 @@ namespace SimpleChat.API.Controllers.V1
                     return new JsonAPIResult(APIResult.CreateVMWithModelState(modelStateDictionary: ModelState),
                         StatusCodes.Status400BadRequest);
 
-                ClaimsPrincipal principal = _tokenService.GetPrincipalFromExpiredToken(model.AccessToken);
+
+                ClaimsPrincipal principal = new ClaimsPrincipal();
+                try
+                {
+                    principal = _tokenService.GetPrincipalFromExpiredToken(model.AccessToken);
+                }
+                catch (SecurityTokenException ex)
+                {
+                    SentrySdk.CaptureException(ex);
+                    return new JsonAPIResult(APIResult.CreateVMWithStatusCode(statusCode: APIStatusCode.ERR02026),
+                        StatusCodes.Status400BadRequest);
+                }
 
                 var user = await _userManager.FindByNameAsync(principal.Identity.Name);
                 if (user == null)
@@ -232,6 +246,33 @@ namespace SimpleChat.API.Controllers.V1
 
             SentrySdk.CaptureMessage($"Refresh token of the user({user.UserName}) is revoked", SentryLevel.Info);
             return NoContent();
+        }
+
+        /// <summary>
+        /// Checks is the access token is valid
+        /// </summary>
+        /// <returns>Response code, that depends to the token validity</returns>
+        /// <response code="401">If access token is not valid</response>
+        /// <response code="200">If access token is valid</response>
+        /// <response code="500">Empty payload with HTTP Status Code</response>
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(APIResultVM))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserAuthenticationVM))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult Validate()
+        {
+            var accessToken = HttpContext.Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+
+            if (User == null || User.Identity == null || !User.Identity.IsAuthenticated || User.Claims == null
+                || accessToken.IsNullOrEmptyString())
+                return Unauthorized();
+
+            bool isTokenValid = _tokenService.IsTokenValid(accessToken);
+
+            if (!isTokenValid)
+                return Unauthorized();
+
+            return Ok();
         }
     }
 }
