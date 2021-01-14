@@ -9,7 +9,7 @@ namespace SimpleChat.Core.ViewModel
         //DateTime CreateDT { get; set; }
         //Guid CreateBy { get; set; }
     }
-    public class AddVM : IAddVM
+    public record AddVM : IAddVM
     {
         //public DateTime CreateDT { get; set; }
         //public Guid CreateBy { get; set; }

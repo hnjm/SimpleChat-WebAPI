@@ -7,7 +7,7 @@ namespace SimpleChat.Core.ViewModel
     {
         T Rec { get; set; }
     }
-    public class APIResultWithRecVM<T> : IResultWithRecVM<T>
+    public record APIResultWithRecVM<T> : IResultWithRecVM<T>
     {
         public Guid? RecId { get; set; }
         public T Rec { get; set; }

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SimpleChat.Domain
 {
-    public class ChatRoomBase : TableEntity
+    public record ChatRoomBase : TableEntity
     {
         [Required]
         [MinLength(5)]
@@ -25,7 +25,7 @@ namespace SimpleChat.Domain
         public bool IsOneToOneChat { get; set; }
     }
 
-    public class ChatRoom : ChatRoomBase
+    public record ChatRoom : ChatRoomBase
     {
         //Foreign keys
         public virtual ICollection<ChatRoomUser> Users { get; set; }

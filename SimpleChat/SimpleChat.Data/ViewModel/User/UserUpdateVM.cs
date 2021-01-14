@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SimpleChat.Data.ViewModel.User
 {
-    public class UserUpdateVM : UpdateVM
+    public record UserUpdateVM : UpdateVM
     {
         [Required]
         [MinLength(5)]

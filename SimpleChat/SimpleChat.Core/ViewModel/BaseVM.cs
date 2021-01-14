@@ -8,7 +8,7 @@ namespace SimpleChat.Core.ViewModel
     {
         Guid Id { get; set; }
     }
-    public class BaseVM : IBaseVM
+    public record BaseVM : IBaseVM
     {
         public Guid Id { get; set; }
     }

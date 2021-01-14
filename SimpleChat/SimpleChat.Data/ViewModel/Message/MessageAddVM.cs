@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SimpleChat.Data.ViewModel.Message
 {
-    public class MessageAddVM : AddVM
+    public record MessageAddVM : AddVM
     {
         [Required]
         [MinLength(5)]

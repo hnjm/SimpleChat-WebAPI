@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SimpleChat.Data.ViewModel.ChatRoom
 {
-    public class ChatRoomUserVM : BaseVM 
+    public record ChatRoomUserVM : BaseVM 
     {
         public Guid UserId { get; set; }
         public Guid ChatRoomId { get; set; }

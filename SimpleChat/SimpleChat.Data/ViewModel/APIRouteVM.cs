@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SimpleChat.Data.ViewModel
 {
-    public class APIRouteVM
+    public record APIRouteVM
     {
         public string Action { get; set; }
         public string Controller { get; set; }

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SimpleChat.Data.ViewModel.ChatRoom
 {
-    public class ChatRoomUpdateVM : UpdateVM
+    public record ChatRoomUpdateVM : UpdateVM
     {
         [Required]
         [MinLength(5)]

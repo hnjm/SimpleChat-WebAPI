@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SimpleChat.Data.ViewModel.User
 {
-    public class UserRegisterVM : BaseVM
+    public record UserRegisterVM : BaseVM
     {
         [Required(ErrorMessage= APIStatusCode.ERR03001)]
         [MinLength(5, ErrorMessage= APIStatusCode.ERR03002)]

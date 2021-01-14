@@ -12,7 +12,7 @@ namespace SimpleChat.Core.ViewModel
         IEnumerable<APIResultErrorCodeVM> Errors { get; set; }
     }
 
-    public class APIResultVM : IAPIResultVM
+    public record APIResultVM : IAPIResultVM
     {
         public Guid? RecId { get; set; }
         public bool IsSuccessful { get; set; }

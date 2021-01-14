@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SimpleChat.Core.Auth.ViewModel
 {
-    public class TokenRefreshVM
+    public record TokenRefreshVM
     {
         [Required]
         public string AccessToken { get; set; }

@@ -11,7 +11,7 @@ namespace SimpleChat.Core.ViewModel
         Guid CreateBy { get; set; }
         Guid UpdateBy { get; set; }
     }
-    public class TableEntityVM : BaseVM, ITableEntityVM
+    public record TableEntityVM : BaseVM, ITableEntityVM
     {
         public DateTime CreateDT { get; set; }
         public DateTime? UpdateDT { get; set; }

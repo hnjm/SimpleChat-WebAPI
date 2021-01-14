@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SimpleChat.Data.ViewModel.Message
 {
-    public class MessageUpdateVM : UpdateVM
+    public record MessageUpdateVM : UpdateVM
     {
         [Required]
         [MinLength(5)]

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SimpleChat.Domain
 {
-    public class MessageBase : TableEntity
+    public record MessageBase : TableEntity
     {
         [Required]
         [MinLength(5)]
@@ -18,7 +18,7 @@ namespace SimpleChat.Domain
         public Guid ChatRoomId { get; set; }
     }
 
-    public class Message : MessageBase
+    public record Message : MessageBase
     {
         //Foreign keys
         public virtual ChatRoom ChatRoom { get; set; }

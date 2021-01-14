@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SimpleChat.Data.ViewModel.User
 {
-    public class UserPasswordChangeVM
+    public record UserPasswordChangeVM
     {
         [Required]
         [StringLength(36, MinimumLength = 36)]

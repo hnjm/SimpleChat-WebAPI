@@ -11,7 +11,7 @@ namespace SimpleChat.Core.EntityFramework
         Guid Id { get; set; }
         bool IsDeleted { get; set; }
     }
-    public class BaseEntity : IBaseEntity
+    public record BaseEntity : IBaseEntity
     {
         [Key]
         public Guid Id { get; set; }
