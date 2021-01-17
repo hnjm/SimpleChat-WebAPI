@@ -1,6 +1,6 @@
 namespace SimpleChat.ViewModel.User
 {
-    public class IsUserExistVM
+    public record IsUserExistVM
     {
         public string UserName { get; set; }
         public string EMail { get; set; }

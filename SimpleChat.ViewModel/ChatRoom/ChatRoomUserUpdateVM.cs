@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SimpleChat.ViewModel.ChatRoom
 {
-    public class ChatRoomUserUpdateVM : UpdateVM
+    public record ChatRoomUserUpdateVM : UpdateVM
     {
         [Required]
         [GuidValidation]

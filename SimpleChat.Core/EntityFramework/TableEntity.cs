@@ -11,7 +11,7 @@ namespace SimpleChat.Core.EntityFramework
         Guid CreateBy { get; set; }
         Guid? UpdateBy { get; set; }
     }
-    public class TableEntity : BaseEntity, ITableEntity
+    public record TableEntity : BaseEntity, ITableEntity
     {
         public DateTime CreateDT { get; set; }
         public DateTime? UpdateDT { get; set; }

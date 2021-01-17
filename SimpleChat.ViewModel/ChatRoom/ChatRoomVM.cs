@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SimpleChat.ViewModel.ChatRoom
 {
-    public class ChatRoomVM : BaseVM
+    public record ChatRoomVM : BaseVM
     {
         public string Name { get; set; }
         public string Description { get; set; }

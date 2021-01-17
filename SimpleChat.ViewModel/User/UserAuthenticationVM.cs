@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SimpleChat.ViewModel.User
 {
-    public class UserAuthenticationVM : BaseVM
+    public record UserAuthenticationVM : BaseVM
     {
         public string UserName { get; set; }
         public string DisplayName { get; set; }

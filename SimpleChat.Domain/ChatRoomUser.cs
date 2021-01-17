@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SimpleChat.Domain
 {
-    public class ChatRoomUserBase : BaseEntity
+    public record ChatRoomUserBase : BaseEntity
     {
         [Required]
         [GuidValidation]
@@ -17,7 +17,7 @@ namespace SimpleChat.Domain
         public Guid ChatRoomId { get; set; }
     }
 
-    public class ChatRoomUser : ChatRoomUserBase
+    public record ChatRoomUser : ChatRoomUserBase
     {
         //Foreign keys
         public virtual ChatRoom ChatRoom { get; set; }
@@ -25,6 +25,6 @@ namespace SimpleChat.Domain
 
         public ChatRoomUser()
         {
-        }       
+        }
     }
 }
