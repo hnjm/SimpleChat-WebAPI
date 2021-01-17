@@ -6,7 +6,7 @@ using SimpleChat.Core;
 
 namespace SimpleChat.ViewModel.User
 {
-    public class UserLoginVM
+    public record UserLoginVM
     {
         [Required(ErrorMessage= APIStatusCode.ERR03001)]
         [MaxLength(15, ErrorMessage= APIStatusCode.ERR03003)]

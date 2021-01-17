@@ -6,7 +6,7 @@ namespace SimpleChat.Core.ViewModel
     public interface IAPIResultWithRecVM<T> :  IAPIResultWithRecVM<Guid?, T>, IAPIResultVM
     {
     }
-    public class APIResultWithRecVM<T> : APIResultWithRecVM<Guid?, T>, IAPIResultWithRecVM<T>
+    public record APIResultWithRecVM<T> : APIResultWithRecVM<Guid?, T>, IAPIResultWithRecVM<T>
     {
     }
 
@@ -14,7 +14,7 @@ namespace SimpleChat.Core.ViewModel
     {
         T Rec { get; set; }
     }
-    public class APIResultWithRecVM<IDType, T> : APIResultVM<IDType>, IAPIResultWithRecVM<IDType, T>
+    public record APIResultWithRecVM<IDType, T> : APIResultVM<IDType>, IAPIResultWithRecVM<IDType, T>
     {
         public T Rec { get; set; }
     }

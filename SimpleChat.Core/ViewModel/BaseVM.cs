@@ -8,7 +8,7 @@ namespace SimpleChat.Core.ViewModel
     {
         T Id { get; set; }
     }
-    public class BaseVM<T> : IBaseVM<T>
+    public record BaseVM<T> : IBaseVM<T>
     {
         public T Id { get; set; }
     }
@@ -16,7 +16,7 @@ namespace SimpleChat.Core.ViewModel
     public interface IBaseVM : IBaseVM<Guid>
     {
     }
-    public class BaseVM : BaseVM<Guid>, IBaseVM
+    public record BaseVM : BaseVM<Guid>, IBaseVM
     {
     }
 }

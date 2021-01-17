@@ -5,7 +5,7 @@ using SimpleChat.Core.ViewModel;
 
 namespace SimpleChat.ViewModel.Auth
 {
-    public class TokenCacheVM : BaseVM
+    public record TokenCacheVM : BaseVM
     {
         public string AccessToken { get; set; }
         public DateTime AccessTokenExpiryTime { get; set; }
