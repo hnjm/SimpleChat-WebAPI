@@ -93,11 +93,12 @@ namespace SimpleChat.API.Controllers.V1
 
             var user = await _userManager.FindByNameAsync(model.UserName);
             var authData = _tokenService.Redis.GetById(user.Id);
-            if (authData.IsNull() || authData.Id.IsEmptyGuid())
-                return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(statusCode: APIStatusCode.ERR02025),
-                    StatusCodes.Status400BadRequest);
-            if (authData.AccessToken.IsNullOrEmptyString() && authData.AccessTokenExpiryTime < DateTime.UtcNow)
+            TimeSpan expiryTimeSpan;
+
+            if (authData.IsNull() || authData.Id.IsEmptyGuid() || authData.AccessToken.IsNullOrEmptyString() || authData.AccessTokenExpiryTime < DateTime.UtcNow)
             {
+                authData = new ViewModel.Auth.TokenCacheVM();
+
                 var claims = new Claim[] {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
@@ -109,9 +110,15 @@ namespace SimpleChat.API.Controllers.V1
                 authData.RefreshToken = _tokenService.GenerateRefreshToken();
                 authData.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1);
                 authData.Id = user.Id;
+
+                expiryTimeSpan = TimeSpan.FromTicks(authData.AccessTokenExpiryTime.Ticks - DateTime.UtcNow.Ticks);
+                Console.WriteLine(expiryTimeSpan);
+            }
+            else
+            {
+                expiryTimeSpan = TimeSpan.FromSeconds(_tokenService.GetTokenExpiryDuration());
             }
 
-            TimeSpan expiryTimeSpan = TimeSpan.FromSeconds(_tokenService.GetTokenExpiryDuration());
             var updateResult = _tokenService.Redis.Insert(authData, expiryTimeSpan);
             if (!updateResult.IsSuccessful)
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01011),
@@ -221,7 +228,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Revoke()
         {
-            if(User.Identity == null || !User.Identity.IsAuthenticated || User.Identity.Name.IsNullOrEmptyString())
+            if (User.Identity == null || !User.Identity.IsAuthenticated || User.Identity.Name.IsNullOrEmptyString())
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(statusCode: APIStatusCode.ERR02026),
                     StatusCodes.Status400BadRequest);
 
