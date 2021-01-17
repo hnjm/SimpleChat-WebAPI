@@ -1,0 +1,18 @@
+﻿using SimpleChat.Core.Validation;
+using SimpleChat.Core.ViewModel;
+using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace SimpleChat.ViewModel.Message
+{
+    public class MessageAddVM : AddVM
+    {
+        [Required]
+        [MinLength(5)]
+        [MaxLength(500)]
+        public string Text { get; set; }
+        [Required]
+        [GuidValidation]
+        public Guid ChatRoomId { get; set; }
+    }
+}

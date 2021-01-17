@@ -1,0 +1,874 @@
+{
+	"info": {
+		"_postman_id": "dc33c3a3-b071-4742-a02e-233f4aff79e6",
+		"name": "SimpleChat",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Test API Functionality",
+			"item": [
+				{
+					"name": "API Version Test",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMWZiYjllNi1mZTE1LTRlZGQtOTczMS1kNTFlODA0YmUxM2MiLCJ1bmlxdWVfbmFtZSI6InVzZXIxIiwibmJmIjoxNjEwMTA3NDc2LCJleHAiOjE2MTAxMDc0ODYsImlzcyI6Imh0dHBzOi8vZ2l0aHViLmNvbS9TaW1wbGVDaGF0QXBwIiwiYXVkIjoiU2ltcGxlQ2hhdCJ9.7yDSw9-Y7KcGoVNElmPIO7Yvz_eoRCI4AABUM0b4ehE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "api-version",
+								"value": "2.0",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:5060/api/test/version",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"test",
+								"version"
+							]
+						},
+						"description": "To change api version, please edit the header which is named as \"api-version\""
+					},
+					"response": []
+				},
+				{
+					"name": "Swagger JSON",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "api-version",
+								"value": "1.0",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:5060/swagger/2.0/swagger.json",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"swagger",
+								"2.0",
+								"swagger.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "API ModelValidation Test",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMWZiYjllNi1mZTE1LTRlZGQtOTczMS1kNTFlODA0YmUxM2MiLCJ1bmlxdWVfbmFtZSI6InVzZXIxIiwianRpIjoiOWFjZDYwZmYtN2Y4Ni00ZGVlLWI2YzktY2NhMzQ3Y2ZhZThlIiwiaWF0IjoiMS80LzIwMjEgOTowMjo0MyBBTSIsIm5iZiI6MTYwOTc1MDk2MywiZXhwIjoxNjA5ODM3MzYzLCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.eF1Lix6SzQpe9xyL-1KbNA9hWBCPkNUspoC_WIH5MpE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "api-version",
+								"value": "1.1",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Text\": \"asssd\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5060/api/test/ModelValidation",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"test",
+								"ModelValidation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Health Check",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5060/health",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Is User Exist",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:5060/api/authentications/IsUserExist?username=user124&email=AdamRobert@outlook.com.tr",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"authentications",
+								"IsUserExist"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "user124"
+								},
+								{
+									"key": "email",
+									"value": "AdamRobert@outlook.com.tr"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"UserName\": \"user143534352\",\n\t\"Password\":\"Adam.1234\",\n    \"ConfirmPassword\":\"Adam.1234\",\n\t\"DisplayName\":\"Adam Robert\",\n    \"EMail\": \"AdamRobert@outlook.com.tr\",\n    \"About\": \"\"\n}"
+						},
+						"url": {
+							"raw": "https://localhost:5060/api/authentications/register",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"authentications",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"UserName\": \"user1\",\n\t\"Password\":\"Adam.1234\"\n}"
+						},
+						"url": {
+							"raw": "https://localhost:5060/api/tokens/create",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"tokens",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"AccessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMWZiYjllNi1mZTE1LTRlZGQtOTczMS1kNTFlODA0YmUxM2MiLCJ1bmlxdWVfbmFtZSI6InVzZXIxIiwibmJmIjoxNjEwMTExNjc2LCJleHAiOjE2MTAxMTIyNzYsImlzcyI6Imh0dHBzOi8vZ2l0aHViLmNvbS9TaW1wbGVDaGF0QXBwIiwiYXVkIjoiU2ltcGxlQ2hhdCJ9.zR0jDXDoFQC2_usSdpN4j1QZ42-5_FO7-7AXVGSR3RU\",\n\t\"RefreshToken\":\"Bhx2HkN0T7/YXSLYNJd13XX1GcBnSAYkP+YfQHt3dCM=\"\n}"
+						},
+						"url": {
+							"raw": "https://localhost:5060/api/tokens/refresh",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"tokens",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Revoke Token",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMWZiYjllNi1mZTE1LTRlZGQtOTczMS1kNTFlODA0YmUxM2MiLCJ1bmlxdWVfbmFtZSI6InVzZXIxIiwibmJmIjoxNjEwMTExNjc2LCJleHAiOjE2MTAxMTIyNzYsImlzcyI6Imh0dHBzOi8vZ2l0aHViLmNvbS9TaW1wbGVDaGF0QXBwIiwiYXVkIjoiU2ltcGxlQ2hhdCJ9.zR0jDXDoFQC2_usSdpN4j1QZ42-5_FO7-7AXVGSR3RU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:5060/api/tokens/revoke",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"tokens",
+								"revoke"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Token Is Valid",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMWZiYjllNi1mZTE1LTRlZGQtOTczMS1kNTFlODA0YmUxM2MiLCJ1bmlxdWVfbmFtZSI6InVzZXIxIiwiVXNlcklkIjoiYzFmYmI5ZTYtZmUxNS00ZWRkLTk3MzEtZDUxZTgwNGJlMTNjIiwibmJmIjoxNjEwNjEwNDYxLCJleHAiOjE2MTA2MTEwNjEsImlzcyI6Imh0dHBzOi8vZ2l0aHViLmNvbS9TaW1wbGVDaGF0QXBwIiwiYXVkIjoiU2ltcGxlQ2hhdCJ9.P7iOr2y7x1ZV8uVyYHtIhdc-cGpsaRaEZPbuylkYOqo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:5060/api/tokens/validate",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"tokens",
+								"validate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Search",
+			"item": [
+				{
+					"name": "Search",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIm5iZiI6MTYxMDU2NzcxNiwiZXhwIjoxNjEwNTY4MzE2LCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ._AoGoluyZUGYPvTc0zhyqMDBUby5kL7rUsoj3EjhCzA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "api-version",
+								"value": "2.0",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "https://localhost:5060/api/searches?key=aaaa",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"searches"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "aaaa"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Chat Room",
+			"item": [
+				{
+					"name": "Get Chat Room",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIm5iZiI6MTYxMDU2ODM5MSwiZXhwIjoxNjEwNTY4OTkxLCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.CyzjfSF7v8GxaFw-STjFEch9xtFZypRLpnhx0ZDgQ0E",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5060/api/chatrooms/5312e55b-f143-47b5-9cb8-2e075d1007a9",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"chatrooms",
+								"5312e55b-f143-47b5-9cb8-2e075d1007a9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Chat Rooms (ALL)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIlVzZXJJZCI6IjJmYWI3NmQ0LTI1ZGMtNDU2Yy1iMGFlLTg4NTA3ZThkYzMwOSIsIm5iZiI6MTYxMDU3MjUwOSwiZXhwIjoxNjEwNTczMTA5LCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.TS_m-iBm78XcmDA2hX9vRVlWCz7vP-Awz23duQBqsjM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5060/api/chatrooms",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"chatrooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Messages of Chat Room",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIm5iZiI6MTYxMDU2NzcxNiwiZXhwIjoxNjEwNTY4MzE2LCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ._AoGoluyZUGYPvTc0zhyqMDBUby5kL7rUsoj3EjhCzA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5060/api/chatrooms/5312e55b-f143-47b5-9cb8-2e075d1007a9/messages",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"chatrooms",
+								"5312e55b-f143-47b5-9cb8-2e075d1007a9",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Users of Chat Room",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIm5iZiI6MTYxMDU2Njc2OCwiZXhwIjoxNjEwNTY3MzY4LCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.Gz089qfRwaIQFRaQLjVtM43PWsY_0yLwYyrB_aadPJg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5060/api/chatrooms/5312e55b-f143-47b5-9cb8-2e075d1007a9/users",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"chatrooms",
+								"5312e55b-f143-47b5-9cb8-2e075d1007a9",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Chat Room",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIlVzZXJJZCI6IjJmYWI3NmQ0LTI1ZGMtNDU2Yy1iMGFlLTg4NTA3ZThkYzMwOSIsIm5iZiI6MTYxMDU3MTg1MiwiZXhwIjoxNjEwNTcyNDUyLCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.QoZpTiVUWgeMT8sqoK_7rdq6lpVJFATIIVW3tLG1O6g",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Name\": \"Genel Chat 22\",\r\n    \"Description\": \"asdasdasdasdasd\",\r\n    \"IsMain\": false,\r\n    \"IsPrivate\": false,\r\n    \"IsOneToOneChat\": false,\r\n    \"Users\": [\r\n        \"C1FBB9E6-FE15-4EDD-9731-D51E804BE13C\",\r\n        \"2506DC34-BEEA-454C-AC9B-DC44A35005E7\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5060/api/chatrooms",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"chatrooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Chat Room",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIlVzZXJJZCI6IjJmYWI3NmQ0LTI1ZGMtNDU2Yy1iMGFlLTg4NTA3ZThkYzMwOSIsIm5iZiI6MTYxMDU3MjUwOSwiZXhwIjoxNjEwNTczMTA5LCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.TS_m-iBm78XcmDA2hX9vRVlWCz7vP-Awz23duQBqsjM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Name\": \"Gaming 2\",\r\n    \"Description\": \"asdasdasdasdasd\",\r\n    \"IsMain\": false,\r\n    \"IsPrivate\": false,\r\n    \"IsOneToOneChat\": false,\r\n    \"Users\": [\r\n        \"C1FBB9E6-FE15-4EDD-9731-D51E804BE13C\",\r\n        \"2506DC34-BEEA-454C-AC9B-DC44A35005E7\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5060/api/chatrooms/7322ec00-0753-48bf-96a5-550cb5b18266",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"chatrooms",
+								"7322ec00-0753-48bf-96a5-550cb5b18266"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Chat Room",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIlVzZXJJZCI6IjJmYWI3NmQ0LTI1ZGMtNDU2Yy1iMGFlLTg4NTA3ZThkYzMwOSIsIm5iZiI6MTYxMDU3MTg1MiwiZXhwIjoxNjEwNTcyNDUyLCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.QoZpTiVUWgeMT8sqoK_7rdq6lpVJFATIIVW3tLG1O6g",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5060/api/chatrooms/869e065a-19e1-4b32-bb9d-076a0a466476",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"chatrooms",
+								"869e065a-19e1-4b32-bb9d-076a0a466476"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get Users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIlVzZXJJZCI6IjJmYWI3NmQ0LTI1ZGMtNDU2Yy1iMGFlLTg4NTA3ZThkYzMwOSIsIm5iZiI6MTYxMDU3MzUzMCwiZXhwIjoxNjEwNTc0MTMwLCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.jOtnrYS5t7mTkAeuqH46uVm9PLDUvRlJVldb-8EUk80",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5060/api/users",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIlVzZXJJZCI6IjJmYWI3NmQ0LTI1ZGMtNDU2Yy1iMGFlLTg4NTA3ZThkYzMwOSIsIm5iZiI6MTYxMDU3NDE0OCwiZXhwIjoxNjEwNTc0NzQ4LCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.QWllHuRmOeGmxuc6EYp-GtklPrSIHElVo3o7ZL5gu7k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5060/api/users/2fab76d4-25dc-456c-b0ae-88507e8dc309",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"users",
+								"2fab76d4-25dc-456c-b0ae-88507e8dc309"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIlVzZXJJZCI6IjJmYWI3NmQ0LTI1ZGMtNDU2Yy1iMGFlLTg4NTA3ZThkYzMwOSIsIm5iZiI6MTYxMDU3NDE0OCwiZXhwIjoxNjEwNTc0NzQ4LCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.QWllHuRmOeGmxuc6EYp-GtklPrSIHElVo3o7ZL5gu7k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"DisplayName\": \"Adam Robert 222\",\r\n    \"About\": \"test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5060/api/users/2fab76d4-25dc-456c-b0ae-88507e8dc309",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"users",
+								"2fab76d4-25dc-456c-b0ae-88507e8dc309"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Message",
+			"item": [
+				{
+					"name": "Get Message",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIlVzZXJJZCI6IjJmYWI3NmQ0LTI1ZGMtNDU2Yy1iMGFlLTg4NTA3ZThkYzMwOSIsIm5iZiI6MTYxMDU3MzUzMCwiZXhwIjoxNjEwNTc0MTMwLCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.jOtnrYS5t7mTkAeuqH46uVm9PLDUvRlJVldb-8EUk80",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5060/api/messages/5312e55b-f143-47b5-9cb8-2e075d1007a7",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"messages",
+								"5312e55b-f143-47b5-9cb8-2e075d1007a7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Message",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIlVzZXJJZCI6IjJmYWI3NmQ0LTI1ZGMtNDU2Yy1iMGFlLTg4NTA3ZThkYzMwOSIsIm5iZiI6MTYxMDU3MzUzMCwiZXhwIjoxNjEwNTc0MTMwLCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.jOtnrYS5t7mTkAeuqH46uVm9PLDUvRlJVldb-8EUk80",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Text\": \"as, aasdasdasdaaa\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5060/api/messages/5312e55b-f143-47b5-9cb8-2e075d1007a7",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"messages",
+								"5312e55b-f143-47b5-9cb8-2e075d1007a7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Message",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZmFiNzZkNC0yNWRjLTQ1NmMtYjBhZS04ODUwN2U4ZGMzMDkiLCJ1bmlxdWVfbmFtZSI6InVzZXIxMiIsIlVzZXJJZCI6IjJmYWI3NmQ0LTI1ZGMtNDU2Yy1iMGFlLTg4NTA3ZThkYzMwOSIsIm5iZiI6MTYxMDU3MzUzMCwiZXhwIjoxNjEwNTc0MTMwLCJpc3MiOiJodHRwczovL2dpdGh1Yi5jb20vU2ltcGxlQ2hhdEFwcCIsImF1ZCI6IlNpbXBsZUNoYXQifQ.jOtnrYS5t7mTkAeuqH46uVm9PLDUvRlJVldb-8EUk80",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:5060/api/messages/5312e55b-f143-47b5-9cb8-2e075d2007a7",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5060",
+							"path": [
+								"api",
+								"messages",
+								"5312e55b-f143-47b5-9cb8-2e075d2007a7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

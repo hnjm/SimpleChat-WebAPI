@@ -1,0 +1,38 @@
+version: '3.3'
+
+services:
+
+  mssql:
+    container_name: SimpleChat-MSSQL-Server
+    image: microsoft/mssql-server-linux:2017-latest
+    environment:
+      - MSSQL_SA_PASSWORD=Pass@word
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+
+  redis:
+    image: "redis:alpine"
+    container_name: SimpleChat-Redis
+    command: --port 6300
+    ports:
+      - "5100:6300"
+    expose:
+      - "5100"
+    volumes:
+      - type: volume
+        source: redis-data
+        target: /data
+    restart: always
+  redis-commander:
+    container_name: SimpleChat-Redis-Commander
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:redis:6300
+    ports:
+      - "8082:8081"
+volumes:
+  redis-data: {}
