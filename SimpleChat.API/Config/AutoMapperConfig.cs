@@ -8,7 +8,7 @@ namespace SimpleChat.API.Config
 {
     internal static class AutoMapperConfig
     {
-        internal static IMapper Add(ref IServiceCollection services, IConfiguration Configuration)
+        internal static IMapper Add(ref IServiceCollection services, IConfiguration configuration)
         {
             var mappingConfig = new MapperConfiguration(mc =>
             {

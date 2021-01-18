@@ -50,6 +50,7 @@ namespace SimpleChat.Data.SubStructure
         {
             _uow = uow;
             _mapper = mapper;
+            _apiResult = apiResult;
         }
 
         protected IRepository<D> Repository

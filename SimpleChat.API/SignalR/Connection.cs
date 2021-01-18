@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimpleChat.API.SignalR
 {
-    public class Connection
+    public record Connection
     {
         [Key]
         public string ConnectionID { get; set; }

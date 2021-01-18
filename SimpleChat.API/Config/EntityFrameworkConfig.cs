@@ -10,7 +10,7 @@ namespace SimpleChat.API.Config
 {
     internal static class EntityFrameworkConfig
     {
-        internal static void Add(ref IServiceCollection services, IConfiguration Configuration)
+        internal static void Add(ref IServiceCollection services, IConfiguration configuration)
         {
             services.AddIdentity<User, Domain.Role>(x => x.User.RequireUniqueEmail = true)
                 .AddErrorDescriber<IdentityErrorDescriberForAPIStatusCodes>()
