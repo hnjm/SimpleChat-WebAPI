@@ -114,7 +114,6 @@ namespace SimpleChat.API.Controllers.V1
                 authData.Id = user.Id;
 
                 expiryTimeSpan = TimeSpan.FromTicks(authData.AccessTokenExpiryTime.Ticks - DateTime.UtcNow.Ticks);
-                Console.WriteLine(expiryTimeSpan);
             }
             else
             {
