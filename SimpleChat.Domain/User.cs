@@ -4,6 +4,7 @@ using SimpleChat.Core.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace SimpleChat.Domain
@@ -23,6 +24,7 @@ namespace SimpleChat.Domain
         public DateTime CreateDateTime { get; set; }
     }
 
+    [Table("Users")]
     public class User : UserBase
     {
         //Foreign keys

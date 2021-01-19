@@ -97,10 +97,10 @@ namespace SimpleChat.API.Controllers.V1
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(statusCode: APIStatusCode.ERR02025),
                     StatusCodes.Status400BadRequest);
 
-            if (authData== null || authData.AccessToken.IsNullOrEmptyString() || authData.AccessTokenExpiryTime < DateTime.UtcNow)
+            if (authData == null || authData.AccessToken.IsNullOrEmptyString() || authData.AccessTokenExpiryTime < DateTime.UtcNow)
             {
                 authData = new ViewModel.Auth.TokenCacheVM();
-                
+
                 var claims = new Claim[] {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),

@@ -2,16 +2,20 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SimpleChat.API.Config;
 using SimpleChat.API.SignalR;
+using SimpleChat.Data;
+using SimpleChat.Domain;
 using SimpleChat.ViewModel;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SimpleChat.API
 {
@@ -117,6 +121,12 @@ namespace SimpleChat.API
                 });
                 endpoints.MapHub<ChatHub>("/chathub");
             });
+
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var dbInitializer = serviceScope.ServiceProvider.GetService<SimpleChatDbContextInitializer>();
+                Task.WaitAll(dbInitializer.Seed());
+            }
         }
     }
 }

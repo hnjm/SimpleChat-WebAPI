@@ -38,22 +38,7 @@ namespace SimpleChat.API.Config
             services.AddTransient(typeof(APIResult));
             services.AddTransient(typeof(APIResult<>));
 
-
-            // services.AddTransient<IConnectionMultiplexer>();
-
-            // Assembly.GetAssembly(typeof(SimpleChatDbContext))
-            //     .GetTypes()
-            //     .Where(item => item.GetInterfaces()
-            //     .Where(i => i.IsGenericType).Any(i => i.GetGenericTypeDefinition() == typeof()
-            //         && !item.IsAbstract
-            //         && !item.IsInterface
-            //         && item.Name.ToUpper() != "BASESERVICE")
-            //     .ToList()
-            //     .ForEach(assignedTypes =>
-            //     {
-            //         var serviceType = assignedTypes.GetInterfaces().First(i => i.GetGenericTypeDefinition() == typeof(IBaseService<,,,>));
-            //         services.AddScoped(serviceType, assignedTypes);
-            //     });
+            services.AddTransient(typeof(SimpleChatDbContextInitializer));
         }
     }
 }
