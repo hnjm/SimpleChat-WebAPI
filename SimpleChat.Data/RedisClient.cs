@@ -24,11 +24,17 @@ namespace SimpleChat.Data
             _apiResult = apiResult;
         }
 
-        public IEnumerable<TEntity> GetAll()
+        public IEnumerable<TEntity> GetAll(string searchPattern = "")
         {
             try
             {
-                var resultBytesArray = _database.StringGet(_dbContext.GetAllKeys().ToArray());
+                var keys = new List<RedisKey>();
+                if (searchPattern.IsNullOrEmptyString())
+                    keys = _dbContext.GetAllKeys().ToList();
+                else
+                    keys = _dbContext.GetAllKeys(searchPattern).ToList();
+
+                var resultBytesArray = _database.StringGet(keys.ToArray());
 
                 var results = new List<TEntity>();
                 foreach (var resultBytes in resultBytesArray)

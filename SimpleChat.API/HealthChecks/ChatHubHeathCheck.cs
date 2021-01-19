@@ -16,6 +16,7 @@ using SimpleChat.Core.ViewModel;
 using SimpleChat.Data;
 using SimpleChat.Domain;
 using SimpleChat.ViewModel.Auth;
+using SimpleChat.ViewModel.SignalR;
 using SimpleChat.ViewModel.User;
 
 namespace SimpleChat.API.HealthChecks
@@ -37,13 +38,13 @@ namespace SimpleChat.API.HealthChecks
             {
                 var url = GetHostAddress();
                 url.Path = "/chathub";
-                var accessToken = await GetAccessToken();
+                var authData = await GetAccessToken();
 
                 _connection = new HubConnectionBuilder()
-                    .WithUrl(url.ToString(), options =>
-                    {
-                        options.AccessTokenProvider = () => Task.FromResult(accessToken);
-                    })
+                    .WithUrl(url.ToString() + "?userId=" + authData.Id, options =>
+                        {
+                            options.AccessTokenProvider = () => Task.FromResult(authData.TokenData.AccessToken);
+                        })
                     .WithAutomaticReconnect()
                     .Build();
 
@@ -72,7 +73,7 @@ namespace SimpleChat.API.HealthChecks
             }
         }
 
-        private async Task<string> GetAccessToken()
+        private async Task<UserAuthenticationVM> GetAccessToken()
         {
             HttpClient httpClient = new HttpClient();
 
@@ -109,18 +110,22 @@ namespace SimpleChat.API.HealthChecks
 
                         TokenCacheVM tokenData = JsonSerializer.Deserialize<TokenCacheVM>(tokenDataResult);
 
-                        return tokenData.AccessToken;
+                        return new UserAuthenticationVM()
+                        {
+                            TokenData = tokenData,
+                            Id = tokenData.Id
+                        };
                     }
                     else
                     {
-                        return "";
+                        return default(UserAuthenticationVM);
                     }
                 }
                 else if (responseString.Contains("UserName", StringComparison.CurrentCultureIgnoreCase))
                 {
                     authModel = JsonSerializer.Deserialize<UserAuthenticationVM>(responseString);
 
-                    return authModel.TokenData.AccessToken;
+                    return authModel;
                 }
                 else
                 {
@@ -130,13 +135,13 @@ namespace SimpleChat.API.HealthChecks
                         Level = Sentry.Protocol.SentryLevel.Error
                     });
 
-                    return "";
+                    return default(UserAuthenticationVM);
                 }
             }
             catch (System.Exception e)
             {
                 SentrySdk.CaptureException(e);
-                return "";
+                return default(UserAuthenticationVM);
             }
         }
 

@@ -22,7 +22,7 @@ namespace SimpleChat.Data.SubStructure
     }
 
     public class Repository<T> : IRepository<T>
-          where T : BaseEntity, IBaseEntity, new()
+        where T : BaseEntity, IBaseEntity, new()
     {
         private SimpleChatDbContext con;
         public Repository(SimpleChatDbContext context)
