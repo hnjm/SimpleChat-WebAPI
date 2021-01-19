@@ -2,125 +2,367 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Sentry;
+using SimpleChat.API.Config;
+using SimpleChat.Core;
+using SimpleChat.Core.Helper;
+using SimpleChat.Core.Redis;
+using SimpleChat.Core.Validation;
 using SimpleChat.Data;
 using SimpleChat.Data.Service;
+using SimpleChat.Domain;
 using SimpleChat.ViewModel.Message;
+using SimpleChat.ViewModel.SignalR;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SimpleChat.API.SignalR
 {
-    //TODO: REFACTOR IT
-    // [EnableCors("CorsPolicy")]
-    // [AllowAnonymous]
-    // public class ChatHub : Hub
-    // {
-    //     internal static List<Connection> Connections = new List<Connection>();
+    public interface IChatHub
+    {
+        Task OnConnectedAsync();
+        Task OnDisconnectedAsync(Exception exception);
+        Task AddToGroup(AddToGroupVM data);
+        Task RemoveFromGroup(RemoveFromGroupVM data);
+        Task SendMessage(SendMessageVM data);
+        Task GetActiveUsers();
+        Task GetActiveUsersOfGroup();
+        Task CheckHub();
+    }
 
-    //     private SimpleChatDbContext _con;
-    //     private IMessageService _service;
-    //     private readonly IMapper _mapper;
-    //     public ChatHub(IMessageService service, IMapper mapper, SimpleChatDbContext con)
-    //     {
-    //         _service = service;
-    //         _mapper = mapper;
-    //         _con = con;
-    //     }
+    [EnableCors(ConstantValues.DefaultCorsPolicy)]
+    [Authorize]
+    public class ChatHub : Hub, IChatHub
+    {
+        private readonly SimpleChatDbContext _con;
+        private readonly IMessageService _service;
+        private readonly IMapper _mapper;
+        private readonly RedisClient<SignalRConnection, string> _connectionCache;
+        private readonly RedisClient<SignalRGroup, string> _groupCache;
 
-    //     public override async Task OnConnectedAsync()
-    //     {
-    //         var httpContext = Context.GetHttpContext();
-    //         //var groupId = httpContext.Request.Query["GroupId"];
-    //         var userIdStr = httpContext.Request.Query["UserId"].FirstOrDefault();
-    //         Guid userId = new Guid(userIdStr);
+        public ChatHub(IMessageService service,
+            IMapper mapper,
+            SimpleChatDbContext con,
+            RedisClient<SignalRConnection, string> connectionCache,
+            RedisClient<SignalRGroup, string> groupCache)
+        {
+            _service = service;
+            _mapper = mapper;
+            _con = con;
+            _connectionCache = connectionCache;
+            _groupCache = groupCache;
+        }
 
-    //         var user = _con.Users.SingleOrDefault(s => s.Id == userId);
+        private SignalRConnection Connection
+        {
+            get
+            {
+                return _connectionCache.GetById(GetKeyForConnection());
+            }
+        }
 
-    //         if (user == null)
-    //             return;
+        public override async Task OnConnectedAsync()
+        {
+            var userIdStr = Context.GetHttpContext().Request.Query["userId"].FirstOrDefault();//GetRequestBody<OnConnectVM>();
+            Guid.TryParse(userIdStr, out Guid userId);
+            if (userId.IsEmptyGuid())//data.Equals(default(OnConnectVM)))
+            {
+                await base.OnDisconnectedAsync(new Exception(APIStatusCode.ERR04001));
+                return;
+            }
 
-    //         Connection connection = new Connection();
-    //         connection.ConnectionID = Context.ConnectionId;
-    //         connection.Connected = true;
-    //         connection.UserId = userId;
-    //         //connection.GroupId = new Guid(groupId);
+            var connectionCachingResult = _connectionCache.Insert(new SignalRConnection()
+            {
+                Id = GetKeyForConnection(),
+                UserId = userId, //data.UserId,
+                GroupId = null
+            });
+            if (!connectionCachingResult.IsSuccessful)
+            {
+                var e = new Exception(APIStatusCode.ERR04002);
+                SentrySdk.CaptureException(e);
+                await base.OnDisconnectedAsync(e);
+                return;
+            }
 
-    //         Connections.Add(connection);
+            await Clients.All.SendAsync("OnConnect", new OnConnectVM() { UserId = userId });
 
-    //         await base.OnConnectedAsync();
-    //     }
+            await base.OnConnectedAsync();
+        }
 
-    //     public override Task OnDisconnectedAsync(Exception exception)
-    //     {
-    //         var connection = Connections.Find(a => a.ConnectionID == Context.ConnectionId);
-    //         if (connection != null)
-    //             Connections.Remove(connection);
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            var connection = Connection;
+            if (!connection.Equals(default(SignalRConnection)))
+            {
+                var deleteResult = _connectionCache.Delete(GetKeyForConnection());
+                if (!deleteResult.IsSuccessful)
+                {
+                    var e = new Exception(APIStatusCode.ERR04004);
+                    SentrySdk.CaptureException(e);
+                }
 
-    //         return base.OnDisconnectedAsync(exception);
-    //     }
+                if (!connection.GroupId.IsNullOrEmptyGuid())
+                {
+                    var group = _groupCache.GetById(GetKeyForGroup(connection.GroupId.Value));
+                    group.ConnectedUsers.Remove(connection.UserId);
 
+                    var groupUpdateResult = _groupCache.Insert(group);
+                    if (!groupUpdateResult.IsSuccessful)
+                        SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04005));
+                }
+            }
 
-    //     public async Task AddToGroup(Guid groupId)
-    //     {
-    //         var connection = Connections.Find(a => a.ConnectionID == Context.ConnectionId);
-    //         if (connection != null)
-    //         {
-    //             Connections.Remove(connection);
+            await Clients.All.SendAsync("OnDisconnect", new OnDisconnectResponseVM()
+            {
+                ConnectionId = Context.ConnectionId
+            });
 
-    //             if (_con.Groups.Any(a => (a.Id == groupId && !a.IsPrivate)
-    //             || _con.GroupUsers.Any(x => x.ChatRoomId == groupId && x.UserId == connection.UserId)))
-    //             {
-    //                 connection.GroupId = groupId;
-    //                 Connections.Add(connection);
+            await base.OnDisconnectedAsync(exception);
+        }
 
-    //                 await Groups.AddToGroupAsync(connection.ConnectionID, connection.GroupId.ToString());
-    //             }
-    //         }
-    //     }
+        public async Task AddToGroup(AddToGroupVM data)
+        {
+            var connection = Connection;
+            if (!connection.Equals(default(SignalRConnection)))
+            {
+                //Remove the connection from existing group
+                if (!connection.GroupId.IsNullOrEmptyGuid())
+                {
+                    await RemoveFromGroup(new RemoveFromGroupVM()
+                    {
+                        GroupId = connection.GroupId.Value
+                    });
+                }
 
-    //     public async Task RemoveFromGroup(Guid groupId)
-    //     {
-    //         var connection = Connections.Find(a => a.ConnectionID == Context.ConnectionId);
-    //         if (connection != null)
-    //         {
-    //             Connections.Remove(connection);
-    //             connection.GroupId = null;
-    //             Connections.Add(connection);
+                //Check is the Chat Room exist on database
+                if (!IsGroupExistOnDatabase(data.GroupId))
+                    return;
 
-    //             await Groups.RemoveFromGroupAsync(connection.ConnectionID, connection.GroupId.ToString());
-    //         }
-    //     }
+                var group = _groupCache.GetById(GetKeyForGroup(data.GroupId));
+                if (group.Equals(default(SignalRGroup)))
+                {
+                    group.Id = GetKeyForGroup(data.GroupId);
+                    group.ConnectedUsers = new List<Guid>() { connection.UserId };
+                }
+                else
+                {
+                    group.ConnectedUsers.Add(connection.UserId);
+                }
 
-    //     public async Task SendMessage(MessageVM message)
-    //     {
-    //         var connection = Connections.Find(a => a.ConnectionID == Context.ConnectionId);
-    //         if (connection != null && connection.GroupId == message.ChatRoomId)
-    //         {
-    //             var model = _mapper.Map<MessageAddVM>(message);
-    //             await _service.AddAsync(model, message.CreateBy);
+                //Update connection groupId field
+                connection.GroupId = data.GroupId;
 
-    //             await Clients.Group(message.ChatRoomId.ToString()).SendAsync("ReceiveMessage", message);
-    //         }
-    //     }
+                //update connection on cache
+                var connectionUpdateResult = _connectionCache.Insert(connection);
+                if (!connectionUpdateResult.IsSuccessful)
+                {
+                    SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04002));
+                    return;
+                }
 
-    //     public async Task SendPrivateMessage(string message, Guid userId)
-    //     {
-    //         var connection = Connections.Find(a => a.UserId == userId);
-    //         if (connection != null)
-    //         {
-    //             await Clients.User(connection.UserId.ToString()).SendAsync("ReceiveMessage", message);
-    //         }
-    //     }
-    // }
+                //update group on cache
+                var groupUpdateResult = _groupCache.Insert(group);
+                if (!groupUpdateResult.IsSuccessful)
+                {
+                    SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04003));
+                    return;
+                }
 
+                //send notification to members of group
+                await Clients.Group(data.GroupId.ToString()).SendAsync("OnJoinToGroup", new OnJoinToGroup()
+                {
+                    ConnectionId = Context.ConnectionId
+                });
 
-    // public interface IChatHub
-    // {
-    //     Task SendMessage();
-    //     List<MessageVM> GetHistory(Guid userId);
-    // }
+                await Groups.AddToGroupAsync(Context.ConnectionId, data.GroupId.ToString());
+            }
+        }
 
+        public async Task RemoveFromGroup(RemoveFromGroupVM data)
+        {
+            var connection = Connection;
+            if (!connection.Equals(default(SignalRConnection)))
+            {
+                //Check is the Chat Room exist on database
+                if (!IsGroupExistOnDatabase(data.GroupId))
+                    return;
 
+                //Get cached group data
+                var group = _groupCache.GetById(GetKeyForGroup(data.GroupId));
+                if (group.Equals(default(SignalRGroup)))
+                {
+                    SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04007));
+                    return;
+                }
+
+                group.ConnectedUsers.Remove(connection.UserId);
+                connection.GroupId = null;
+
+                //update connection on cache
+                var connectionUpdateResult = _connectionCache.Insert(connection);
+                if (!connectionUpdateResult.IsSuccessful)
+                {
+                    SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04002));
+                    return;
+                }
+
+                //update group on cache
+                var groupUpdateResult = _groupCache.Insert(group);
+                if (!groupUpdateResult.IsSuccessful)
+                {
+                    SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04003));
+                    return;
+                }
+
+                //Send notification to members of group
+                await Clients.Group(data.GroupId.ToString()).SendAsync("OnLeaveFromGroup", new OnLeaveFromGroup()
+                {
+                    ConnectionId = Context.ConnectionId
+                });
+
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, data.GroupId.ToString());
+            }
+        }
+
+        public async Task SendMessage(SendMessageVM data)
+        {
+            var connection = Connection;
+            if (!connection.Equals(default(SignalRConnection)) && !connection.GroupId.IsNullOrEmptyGuid())
+            {
+                var group = _groupCache.GetById(GetKeyForGroup(connection.GroupId.Value));
+                if (group.Equals(default(SignalRGroup)))
+                {
+                    SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04007));
+                    return;
+                }
+
+                var dbResult = await _service.AddAsync(new MessageAddVM()
+                {
+                    ChatRoomId = connection.GroupId.Value,
+                    Text = data.Text
+                }, connection.UserId);
+                if (dbResult.ResultIsNotTrue())
+                {
+                    SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04008));
+                    return;
+                }
+
+                await Clients.Group(connection.GroupId.Value.ToString()).SendAsync("ReceiveMessage", data.Text);
+            }
+        }
+
+        public async Task GetActiveUsers()
+        {
+            var connection = Connection;
+            if (!connection.Equals(default(SignalRConnection)))
+            {
+                var connections = _connectionCache.GetAll(GetKeyForConnection(true));
+
+                if (connections.Any())
+                {
+                    await Clients.Caller.SendAsync("ReceiveActiveUsers", new ActiveUsersResponseVM()
+                    {
+                        ActiveUsers = connections.ToList()
+                    });
+                }
+            }
+        }
+
+        public async Task GetActiveUsersOfGroup()
+        {
+            var connection = Connection;
+            if (!connection.Equals(default(SignalRConnection)))
+            {
+                var group = _groupCache.GetById(GetKeyForGroup(connection.GroupId.Value));
+                if (group.Equals(default(SignalRGroup)))
+                {
+                    SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04007));
+                    return;
+                }
+
+                await Clients.Caller.SendAsync("ReceiveActiveUsersOfGroup", group.ConnectedUsers);
+            }
+        }
+
+        public async Task CheckHub()
+        {
+            await Clients.Caller.SendAsync("TestConnection", Context.ConnectionId);
+        }
+
+        #region Helper Methods
+
+        private T GetRequestBody<T>()
+        {
+            try
+            {
+                var requestBody = Context.GetHttpContext().Request.ReadBodyAsString();
+                var model = JsonSerializer.Deserialize<T>(requestBody);
+
+                return model;
+            }
+            catch (ArgumentNullException e)
+            {
+                SentrySdk.CaptureException(e);
+                return default(T);
+            }
+            catch (JsonException e)
+            {
+                SentrySdk.CaptureException(e);
+                return default(T);
+            }
+            catch (NotSupportedException e)
+            {
+                SentrySdk.CaptureException(e);
+                return default(T);
+            }
+            catch (Exception e)
+            {
+                SentrySdk.CaptureException(e);
+                return default(T);
+            }
+        }
+
+        private string GetKeyForConnection(bool getKeyForAll = false)
+        {
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("hubName", "ChatHub");
+            if (!getKeyForAll)
+                parameters.Add("id", Context.ConnectionId);
+            else
+                parameters.Add("id", "*");
+
+            return RedisKeyFormat.GetKey(parameters, RedisKeyFormat.SignalRConnectionKeyFormat);
+        }
+
+        private string GetKeyForGroup(Guid? groupId)
+        {
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("hubName", "ChatHub");
+            if (!groupId.IsNullOrEmptyGuid())
+                parameters.Add("id", groupId.Value.ToString());
+            else
+                parameters.Add("id", "*");
+
+            return RedisKeyFormat.GetKey(parameters, RedisKeyFormat.SignalRGroupKeyFormat);
+        }
+
+        private bool IsGroupExistOnDatabase(Guid groupId)
+        {
+            bool isGroupExist = _con.Set<ChatRoom>().AsNoTracking().Any(a => a.Id == groupId);
+            if (!isGroupExist)
+            {
+                SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04006));
+            }
+
+            return isGroupExist;
+        }
+
+        #endregion
+    }
 }

@@ -6,7 +6,7 @@ namespace SimpleChat.API.Config
 {
     internal static class APIControllersConfig
     {
-        internal static void Add(ref IServiceCollection services, IConfiguration Configuration)
+        internal static void Add(ref IServiceCollection services, IConfiguration configuration)
         {
             services.AddControllers(options =>
             {

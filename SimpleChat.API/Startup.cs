@@ -1,15 +1,21 @@
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SimpleChat.API.Config;
+using SimpleChat.API.SignalR;
+using SimpleChat.Data;
+using SimpleChat.Domain;
 using SimpleChat.ViewModel;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SimpleChat.API
 {
@@ -34,6 +40,7 @@ namespace SimpleChat.API
             SwaggerConfig.Add(ref services, Configuration);
             DependencyInjectionConfig.Add(ref services, Configuration, ref mapper);
             HealthChecksConfig.Add(ref services, Configuration);
+            SignalRConfig.Add(ref services, Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,29 +76,33 @@ namespace SimpleChat.API
 
             app.UseHealthChecks("/health", new HealthCheckOptions
             {
-                ResponseWriter = async (context, report) =>
-                {
-                    context.Response.ContentType = "application/json";
+                // ResponseWriter = async (context, report) =>
+                // {
+                //     context.Response.ContentType = "application/json";
 
-                    var response = new HealthCheckResponseVM
-                    {
-                        Status = report.Status.ToString(),
-                        Checks = report.Entries.Select(x => new HealthCheckVM
-                        {
-                            Status = x.Value.Status.ToString(),
-                            Component = x.Key,
-                            Description = x.Value.Description
-                        }),
-                        Duration = report.TotalDuration
-                    };
+                //     var response = new HealthCheckResponseVM
+                //     {
+                //         Status = report.Status.ToString(),
+                //         Checks = report.Entries.Select(x => new HealthCheckVM
+                //         {
+                //             Status = x.Value.Status.ToString(),
+                //             Component = x.Key,
+                //             Description = x.Value.Description
+                //         }),
+                //         Duration = report.TotalDuration
+                //     };
 
-                    var bodyStr = JsonSerializer.Serialize(response);
-                    var bodyByteArray = Encoding.UTF8.GetBytes(bodyStr);
-                    await context.Response.Body.WriteAsync(bodyByteArray, 0, bodyByteArray.Length);
-                }
+                //     var bodyStr = JsonSerializer.Serialize(response);
+                //     var bodyByteArray = Encoding.UTF8.GetBytes(bodyStr);
+                //     await context.Response.Body.WriteAsync(bodyByteArray, 0, bodyByteArray.Length);
+                // }
+
+                Predicate = _ => true,
+                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
             });
+            // app.UseHealthChecksUI();
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
             app.UseCors(ConstantValues.DefaultCorsPolicy);
@@ -102,8 +113,20 @@ namespace SimpleChat.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHealthChecks("/health").RequireAuthorization();
+                // endpoints.MapHealthChecks("/health");
+                endpoints.MapHealthChecksUI(options =>
+                {
+                    options.UIPath = "/healthstatus";
+                    options.ApiPath = "/health";
+                });
+                endpoints.MapHub<ChatHub>("/chathub");
             });
+
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var dbInitializer = serviceScope.ServiceProvider.GetService<SimpleChatDbContextInitializer>();
+                Task.WaitAll(dbInitializer.Seed());
+            }
         }
     }
 }

@@ -31,7 +31,7 @@ namespace SimpleChat.Data.SubStructure
             repositories.Add(typeof(D), repository);
             return repository;
         }
-        public virtual async Task<int> SaveChanges()
+        public virtual async Task<int> SaveChangesAsync()
         {
             return await _con.SaveChangesAsync();
         }

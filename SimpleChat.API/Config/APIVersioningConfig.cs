@@ -9,7 +9,7 @@ namespace SimpleChat.API.Config
 {
     internal static class APIVersioningConfig
     {
-        internal static void Add(ref IServiceCollection services, IConfiguration Configuration)
+        internal static void Add(ref IServiceCollection services, IConfiguration configuration)
         {
             services.AddApiVersioning(o =>
             {

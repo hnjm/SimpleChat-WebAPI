@@ -93,9 +93,11 @@ namespace SimpleChat.API.Controllers.V1
 
             var user = await _userManager.FindByNameAsync(model.UserName);
             var authData = _tokenService.Redis.GetById(user.Id);
-            TimeSpan expiryTimeSpan;
+            if (!authData.IsNull() && !authData.Id.IsEmptyGuid())
+                return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(statusCode: APIStatusCode.ERR02025),
+                    StatusCodes.Status400BadRequest);
 
-            if (authData.IsNull() || authData.Id.IsEmptyGuid() || authData.AccessToken.IsNullOrEmptyString() || authData.AccessTokenExpiryTime < DateTime.UtcNow)
+            if (authData == null || authData.AccessToken.IsNullOrEmptyString() || authData.AccessTokenExpiryTime < DateTime.UtcNow)
             {
                 authData = new ViewModel.Auth.TokenCacheVM();
 
@@ -168,7 +170,7 @@ namespace SimpleChat.API.Controllers.V1
 
                 var authData = _tokenService.Redis.GetById(userId);
                 if (authData.IsNull() || authData.Id.IsEmptyGuid())
-                    return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(statusCode: APIStatusCode.ERR02025),
+                    return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(statusCode: APIStatusCode.ERR02023),
                             StatusCodes.Status400BadRequest);
                 else if (!authData.AccessToken.IsNullOrEmptyString() && authData.AccessTokenExpiryTime > DateTime.UtcNow)
                     return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(statusCode: APIStatusCode.ERR02025),

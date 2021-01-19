@@ -6,9 +6,9 @@ namespace SimpleChat.API.Config
 {
     internal static class CorsConfig
     {
-        internal static void Add(ref IServiceCollection services, IConfiguration Configuration)
+        internal static void Add(ref IServiceCollection services, IConfiguration configuration)
         {
-            var allowedOrigins = Configuration.GetValue<string>("AllowedOrigins")?.Split(",") ?? new string[0];
+            var allowedOrigins = configuration.GetValue<string>("AllowedOrigins")?.Split(",") ?? new string[0];
 
             services.AddCors(options =>
             {

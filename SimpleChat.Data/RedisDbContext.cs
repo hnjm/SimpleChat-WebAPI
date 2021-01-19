@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Sentry;
 using SimpleChat.Core.Redis;
+using SimpleChat.Core.Validation;
 using StackExchange.Redis;
 
 namespace SimpleChat.Data
@@ -36,9 +37,12 @@ namespace SimpleChat.Data
             }
         }
 
-        public IEnumerable<RedisKey> GetAllKeys()
+        public IEnumerable<RedisKey> GetAllKeys(string searchPattern = "")
         {
-            return _connectionMultiplexer.GetServer(_redisConfiguration.Connection).Keys();
+            if(searchPattern.IsNullOrEmptyString())
+                return _connectionMultiplexer.GetServer(_redisConfiguration.Connection).Keys();
+            else
+                return _connectionMultiplexer.GetServer(_redisConfiguration.Connection).Keys(pattern: searchPattern);
         }
 
         private void SetConnectionMultiplexer()

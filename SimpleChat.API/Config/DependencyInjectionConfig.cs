@@ -14,11 +14,11 @@ namespace SimpleChat.API.Config
 {
     internal static class DependencyInjectionConfig
     {
-        internal static void Add(ref IServiceCollection services, IConfiguration Configuration, ref IMapper mapper)
+        internal static void Add(ref IServiceCollection services, IConfiguration configuration, ref IMapper mapper)
         {
             services.AddSingleton(mapper);
             services.AddDbContext<SimpleChatDbContext>(db =>
-                db.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+                db.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
                 x => x.MigrationsAssembly("SimpleChat.Data")));
             services.AddScoped<UnitOfWork>();
             services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
@@ -29,7 +29,7 @@ namespace SimpleChat.API.Config
             services.AddTransient<IMessageService, MessageService>();
             services.AddTransient<IUserService, UserService>();
 
-            services.AddSingleton<IConfiguration>(provider => Configuration);
+            services.AddSingleton<IConfiguration>(provider => configuration);
             services.AddTransient<ITokenService, TokenService>();
 
             services.AddSingleton<RedisDbContext>();
@@ -38,22 +38,7 @@ namespace SimpleChat.API.Config
             services.AddTransient(typeof(APIResult));
             services.AddTransient(typeof(APIResult<>));
 
-
-            // services.AddTransient<IConnectionMultiplexer>();
-
-            // Assembly.GetAssembly(typeof(SimpleChatDbContext))
-            //     .GetTypes()
-            //     .Where(item => item.GetInterfaces()
-            //     .Where(i => i.IsGenericType).Any(i => i.GetGenericTypeDefinition() == typeof()
-            //         && !item.IsAbstract
-            //         && !item.IsInterface
-            //         && item.Name.ToUpper() != "BASESERVICE")
-            //     .ToList()
-            //     .ForEach(assignedTypes =>
-            //     {
-            //         var serviceType = assignedTypes.GetInterfaces().First(i => i.GetGenericTypeDefinition() == typeof(IBaseService<,,,>));
-            //         services.AddScoped(serviceType, assignedTypes);
-            //     });
+            services.AddTransient(typeof(SimpleChatDbContextInitializer));
         }
     }
 }

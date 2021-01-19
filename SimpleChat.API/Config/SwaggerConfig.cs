@@ -10,7 +10,7 @@ namespace SimpleChat.API.Config
 {
     internal static class SwaggerConfig
     {
-        internal static void Add(ref IServiceCollection services, IConfiguration Configuration)
+        internal static void Add(ref IServiceCollection services, IConfiguration configuration)
         {
             var apiVersionDescriptionProvider = services.BuildServiceProvider().GetService<IApiVersionDescriptionProvider>();
 

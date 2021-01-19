@@ -50,6 +50,7 @@ namespace SimpleChat.Data.SubStructure
         {
             _uow = uow;
             _mapper = mapper;
+            _apiResult = apiResult;
         }
 
         protected IRepository<D> Repository
@@ -301,7 +302,7 @@ namespace SimpleChat.Data.SubStructure
         {
             try
             {
-                await _uow.SaveChanges();
+                await _uow.SaveChangesAsync();
 
                 return _apiResult.CreateVM(isSuccessful: true);
             }

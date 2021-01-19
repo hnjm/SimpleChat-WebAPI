@@ -14,14 +14,12 @@ namespace SimpleChat.Data
     {
         public SimpleChatDbContext(DbContextOptions<SimpleChatDbContext> options) : base(options)
         {
-
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
-            //new GroupMapping().Set(ref builder);
+            // new GroupMapping().Set(ref builder);
 
             builder.Entity<User>().ToTable("Users");
             builder.Entity<Role>().ToTable("Roles");

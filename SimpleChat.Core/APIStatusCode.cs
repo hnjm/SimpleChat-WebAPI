@@ -21,6 +21,7 @@ namespace SimpleChat.Core
             01 - General
             02 - Identity Errors
             03 - ModelState Errors
+            04 - SignalR Errors
         -----------------------------------------------
         */
 
@@ -239,6 +240,50 @@ namespace SimpleChat.Core
         ///  Passwords Is Not Match
         /// </summary>
         public const string ERR03004 = "ERR03004";
+
+        #endregion
+
+        #region ERR04 - SignalR Errors
+
+        /// <summary>
+        ///  Invalid request body
+        /// </summary>
+        public const string ERR04001 = "ERR04001";
+
+        /// <summary>
+        ///  Connection couldnt add or update on cache
+        /// </summary>
+        public const string ERR04002 = "ERR04002";
+
+        /// <summary>
+        ///  Group couldnt add pr update on cache
+        /// </summary>
+        public const string ERR04003 = "ERR04003";
+
+        /// <summary>
+        ///  Connection couldnt remove from cache
+        /// </summary>
+        public const string ERR04004 = "ERR04004";
+
+        /// <summary>
+        ///  Connection couldnt remove from group data on cache
+        /// </summary>
+        public const string ERR04005 = "ERR04005";
+
+        /// <summary>
+        ///  group not exist on database
+        /// </summary>
+        public const string ERR04006 = "ERR04006";
+
+        /// <summary>
+        ///  group not exist on cache
+        /// </summary>
+        public const string ERR04007 = "ERR04007";
+
+        /// <summary>
+        ///  Message couldn't save to the DB
+        /// </summary>
+        public const string ERR04008 = "ERR04008";
 
         #endregion
     }

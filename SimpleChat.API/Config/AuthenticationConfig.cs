@@ -9,7 +9,7 @@ namespace SimpleChat.API.Config
 {
     internal static class AuthenticationConfig
     {
-        internal static void Add(ref IServiceCollection services, IConfiguration Configuration)
+        internal static void Add(ref IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(options =>
             {
@@ -18,7 +18,7 @@ namespace SimpleChat.API.Config
             })
             .AddJwtBearer(options =>
             {
-                var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<String>("Jwt:Key")));
+                var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<String>("Jwt:Key")));
 
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
@@ -33,8 +33,8 @@ namespace SimpleChat.API.Config
                     ValidateAudience = true,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = signingKey,
-                    ValidAudience = Configuration["Jwt:Audience"],
-                    ValidIssuer = Configuration["Jwt:Issuer"],
+                    ValidAudience = configuration["Jwt:Audience"],
+                    ValidIssuer = configuration["Jwt:Issuer"],
                 };
 
                 //options.Events = new JwtBearerEvents
