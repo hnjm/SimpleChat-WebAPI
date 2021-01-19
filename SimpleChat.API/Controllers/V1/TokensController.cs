@@ -91,6 +91,7 @@ namespace SimpleChat.API.Controllers.V1
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01004),
                     StatusCodes.Status404NotFound);
 
+            TimeSpan expiryTimeSpan;
             var user = await _userManager.FindByNameAsync(model.UserName);
             var authData = _tokenService.Redis.GetById(user.Id);
             if (!authData.IsNull() && !authData.Id.IsEmptyGuid())
