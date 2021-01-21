@@ -75,7 +75,7 @@ namespace SimpleChat.API.Controllers.V1
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(APIResultWithRecVM<IEnumerable<UserListVM>>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<UserListVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public JsonResult Get()
         {
@@ -100,7 +100,7 @@ namespace SimpleChat.API.Controllers.V1
         [Route("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(APIResultWithRecVM<UserVM>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserVM))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public JsonResult GetById([FromRoute] Guid id)
         {
@@ -115,8 +115,7 @@ namespace SimpleChat.API.Controllers.V1
 
             var result = _mapper.Map<UserVM>(user);
 
-            return new JsonAPIResult(_apiResult.CreateVMWithRec<UserVM>(result, result.Id, true),
-                StatusCodes.Status200OK);
+            return new JsonAPIResult(result, StatusCodes.Status200OK);
         }
 
         /// <summary>

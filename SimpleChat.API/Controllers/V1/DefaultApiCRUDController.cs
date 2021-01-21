@@ -115,7 +115,7 @@ namespace SimpleChat.API.Controllers.V1
         /// <response code="200">If any records exist on the DB</response>
         /// <response code="500">Empty payload with HTTP Status Code</response>
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(APIResultWithRecVM<IEnumerable<IBaseVM>>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<IBaseVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
         public virtual async Task<JsonResult> Get()
@@ -140,7 +140,7 @@ namespace SimpleChat.API.Controllers.V1
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(APIResultWithRecVM<IEnumerable<BaseVM>>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BaseVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public virtual async Task<JsonResult> GetById([FromRoute] Guid id)
         {

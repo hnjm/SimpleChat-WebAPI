@@ -53,7 +53,7 @@ namespace SimpleChat.API.Controllers.V1
         [HttpGet()]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(APIResultWithRecVM<IEnumerable<ChatRoomVM>>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ChatRoomVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public override async Task<JsonResult> Get()
         {
@@ -72,11 +72,6 @@ namespace SimpleChat.API.Controllers.V1
                     StatusCodes.Status404NotFound);
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
-            // return await (Task.Run(() =>
-            // {
-            //     new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01009),
-            //         StatusCodes.Status403Forbidden);
-            // }) as Task<JsonResult>);
         }
 
         /// <summary>
@@ -91,7 +86,7 @@ namespace SimpleChat.API.Controllers.V1
         [Route("{id}/users")]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(APIResultWithRecVM<IEnumerable<Guid>>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Guid>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public JsonResult GetUsers([FromRoute] Guid id)
         {

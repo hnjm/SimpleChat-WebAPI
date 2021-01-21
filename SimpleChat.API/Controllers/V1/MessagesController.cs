@@ -67,7 +67,7 @@ namespace SimpleChat.API.Controllers.V1
         [Route("/api/chatrooms/{id}/messages")]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(APIResultWithRecVM<IEnumerable<MessageVM>>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<MessageVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public virtual JsonResult GetByChatRoomId([FromRoute] Guid id)
         {
