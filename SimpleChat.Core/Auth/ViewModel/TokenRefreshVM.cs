@@ -5,9 +5,9 @@ namespace SimpleChat.Core.Auth.ViewModel
 {
     public record TokenRefreshVM
     {
-        [Required]
+        [Required(ErrorMessage= APIStatusCode.ERR03001)]
         public string AccessToken { get; set; }
-        [Required]
+        [Required(ErrorMessage= APIStatusCode.ERR03001)]
         public string RefreshToken { get; set; }
     }
 }
