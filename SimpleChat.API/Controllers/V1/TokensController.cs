@@ -22,6 +22,7 @@ using SimpleChat.Data.Service;
 using SimpleChat.ViewModel.User;
 using Microsoft.Net.Http.Headers;
 using System.Collections.Generic;
+using SimpleChat.ViewModel.Auth.ViewModel;
 
 namespace SimpleChat.API.Controllers.V1
 {

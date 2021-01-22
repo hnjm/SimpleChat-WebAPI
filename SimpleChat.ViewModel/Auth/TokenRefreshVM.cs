@@ -1,7 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using SimpleChat.Core;
 
-namespace SimpleChat.Core.Auth.ViewModel
+namespace SimpleChat.ViewModel.Auth.ViewModel
 {
     public record TokenRefreshVM
     {
