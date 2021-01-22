@@ -223,12 +223,12 @@ namespace SimpleChat.API.Controllers.V1
         /// <returns>APIResultVM with errors or ID value, that depends to the success of delete operation</returns>
         /// <response code="400">When ID parameter is null or empty</response>
         /// <response code="409">If the record couldnt delete from the DB</response>
-        /// <response code="404">If the record deleted as successfully</response>
+        /// <response code="204">If the record deleted as successfully</response>
         /// <response code="500">Empty payload with HTTP Status Code</response>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
+        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public virtual async Task<JsonResult> Delete([FromRoute] Guid id)
         {
@@ -241,7 +241,7 @@ namespace SimpleChat.API.Controllers.V1
                 return new JsonAPIResult(result, StatusCodes.Status409Conflict);
 
             return new JsonAPIResult(_apiResult.CreateVM(result.RecId, result.ResultIsTrue()),
-                StatusCodes.Status404NotFound);
+                StatusCodes.Status204NoContent);
         }
     }
 

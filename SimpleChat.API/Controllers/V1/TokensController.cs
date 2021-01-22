@@ -14,7 +14,6 @@ using Sentry;
 using Sentry.Protocol;
 using SimpleChat.API.Config;
 using SimpleChat.Core;
-using SimpleChat.Core.Auth.ViewModel;
 using SimpleChat.Core.Helper;
 using SimpleChat.Core.Validation;
 using SimpleChat.Core.ViewModel;
