@@ -27,9 +27,9 @@ namespace SimpleChat.API.SignalR
     {
         Task OnConnectedAsync();
         Task OnDisconnectedAsync(Exception exception);
-        Task AddToGroup(AddToGroupVM data);
+        Task AddToGroup(string groupIdStr);
         Task RemoveFromGroup(RemoveFromGroupVM data);
-        Task SendMessage(SendMessageVM data);
+        Task SendMessage(string data);
         Task GetActiveUsers();
         Task GetActiveUsersOfGroup();
         Task CheckHub();
@@ -118,16 +118,14 @@ namespace SimpleChat.API.SignalR
                 }
             }
 
-            await Clients.All.SendAsync("OnDisconnect", new OnDisconnectResponseVM()
-            {
-                ConnectionId = Context.ConnectionId
-            });
+            await Clients.All.SendAsync("OnDisconnect",  JsonSerializer.Serialize("Disconnected"));
 
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task AddToGroup(AddToGroupVM data)
+        public async Task AddToGroup(string groupIdStr)
         {
+            Guid.TryParse(groupIdStr, out Guid groupId);
             var connection = Connection;
             if (!connection.Equals(default(SignalRConnection)))
             {
@@ -141,13 +139,14 @@ namespace SimpleChat.API.SignalR
                 }
 
                 //Check is the Chat Room exist on database
-                if (!IsGroupExistOnDatabase(data.GroupId))
+                if (!IsGroupExistOnDatabase(groupId))
                     return;
 
-                var group = _groupCache.GetById(GetKeyForGroup(data.GroupId));
-                if (group.Equals(default(SignalRGroup)))
+                var group = _groupCache.GetById(GetKeyForGroup(groupId));
+                if (group == null || group.Equals(default(SignalRGroup)))
                 {
-                    group.Id = GetKeyForGroup(data.GroupId);
+                    group = new SignalRGroup();
+                    group.Id = GetKeyForGroup(groupId);
                     group.ConnectedUsers = new List<Guid>() { connection.UserId };
                 }
                 else
@@ -156,7 +155,7 @@ namespace SimpleChat.API.SignalR
                 }
 
                 //Update connection groupId field
-                connection.GroupId = data.GroupId;
+                connection.GroupId = groupId;
 
                 //update connection on cache
                 var connectionUpdateResult = _connectionCache.Insert(connection);
@@ -175,12 +174,9 @@ namespace SimpleChat.API.SignalR
                 }
 
                 //send notification to members of group
-                await Clients.Group(data.GroupId.ToString()).SendAsync("OnJoinToGroup", new OnJoinToGroup()
-                {
-                    ConnectionId = Context.ConnectionId
-                });
+                await Clients.Group(groupId.ToString()).SendAsync("OnJoinToGroup", connection.UserId.ToString());
 
-                await Groups.AddToGroupAsync(Context.ConnectionId, data.GroupId.ToString());
+                await Groups.AddToGroupAsync(Context.ConnectionId, groupId.ToString());
             }
         }
 
@@ -221,16 +217,13 @@ namespace SimpleChat.API.SignalR
                 }
 
                 //Send notification to members of group
-                await Clients.Group(data.GroupId.ToString()).SendAsync("OnLeaveFromGroup", new OnLeaveFromGroup()
-                {
-                    ConnectionId = Context.ConnectionId
-                });
+                await Clients.Group(data.GroupId.ToString()).SendAsync("OnLeaveFromGroup", JsonSerializer.Serialize("Remove From Group"));
 
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, data.GroupId.ToString());
             }
         }
 
-        public async Task SendMessage(SendMessageVM data)
+        public async Task SendMessage(string data)
         {
             var connection = Connection;
             if (!connection.Equals(default(SignalRConnection)) && !connection.GroupId.IsNullOrEmptyGuid())
@@ -245,15 +238,19 @@ namespace SimpleChat.API.SignalR
                 var dbResult = await _service.AddAsync(new MessageAddVM()
                 {
                     ChatRoomId = connection.GroupId.Value,
-                    Text = data.Text
+                    Text = data
                 }, connection.UserId);
                 if (dbResult.ResultIsNotTrue())
                 {
                     SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04008));
                     return;
                 }
-
-                await Clients.Group(connection.GroupId.Value.ToString()).SendAsync("ReceiveMessage", data.Text);
+                var result = new OnReceivedMessageVM(){
+                    GroupId = connection.GroupId.Value,
+                    SenderId = connection.UserId,
+                    Text = data
+                };
+                await Clients.Group(connection.GroupId.Value.ToString()).SendAsync("ReceiveMessage", JsonSerializer.Serialize(result));
             }
         }
 
@@ -266,10 +263,7 @@ namespace SimpleChat.API.SignalR
 
                 if (connections.Any())
                 {
-                    await Clients.Caller.SendAsync("ReceiveActiveUsers", new ActiveUsersResponseVM()
-                    {
-                        ActiveUsers = connections.ToList()
-                    });
+                    await Clients.Caller.SendAsync("ReceiveActiveUsers", JsonSerializer.Serialize(connections.ToList()));
                 }
             }
         }
