@@ -46,13 +46,13 @@ namespace SimpleChat.API.Controllers.V1
         ///  To get chat rooms for a User, returns only accessable chat roooms
         /// </summary>
         /// <returns>List of chat rooms</returns>
-        /// <response code="404">If DB don't have any record for specific user</response>
+        /// <response code="204">If DB don't have any record for specific user</response>
         /// <response code="400">If the Current UserId is empty or null</response>
         /// <response code="200">If any records exist for the user on the DB</response>
         /// <response code="500">Empty payload with HTTP Status Code</response>
         [HttpGet()]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
+        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ChatRoomVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public override async Task<JsonResult> Get()
@@ -69,7 +69,7 @@ namespace SimpleChat.API.Controllers.V1
             var result = _service.GetByUserId(user.Id);
             if (result == null)
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
-                    StatusCodes.Status404NotFound);
+                    StatusCodes.Status204NoContent);
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
         }
@@ -78,14 +78,14 @@ namespace SimpleChat.API.Controllers.V1
         ///  To get users of the a chat room
         /// </summary>
         /// <returns>List of users guid ids of the chat room</returns>
-        /// <response code="404">If the chat room doesn't have any user</response>
+        /// <response code="204">If the chat room doesn't have any user</response>
         /// <response code="400">If the Id is empty or null</response>
         /// <response code="200">If any user exist for the chat room on the DB</response>
         /// <response code="500">Empty payload with HTTP Status Code</response>
         [HttpGet]
         [Route("{id}/users")]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
+        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Guid>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public JsonResult GetUsers([FromRoute] Guid id)
@@ -97,7 +97,7 @@ namespace SimpleChat.API.Controllers.V1
             var result = _service.GetUsers(id);
             if (result == null)
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01002),
-                    StatusCodes.Status404NotFound);
+                    StatusCodes.Status204NoContent);
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
         }

@@ -54,12 +54,12 @@ namespace SimpleChat.API.Controllers.V1
         /// <param name="key">Text fields of the messages querying by this paramerter</param>
         /// <returns>A list of filtered messages</returns>
         /// <response code="400">When KEY parameter is empty or null</response>
-        /// <response code="404">If there is no record which is contains KEY parameter value</response>
+        /// <response code="204">If there is no record which is contains KEY parameter value</response>
         /// <response code="200">List of messages</response>
         /// <response code="500">Empty payload with HTTP Status Code</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
+        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<MessageVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public JsonResult Get([FromQuery] string key)
@@ -71,7 +71,7 @@ namespace SimpleChat.API.Controllers.V1
             var messages = _service.Query().Where(s => s.Text.Contains(key));
             if (messages == null)
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01002),
-                    StatusCodes.Status404NotFound);
+                    StatusCodes.Status204NoContent);
 
             var result = _mapper.ProjectTo<MessageVM>(messages).ToList();
 
