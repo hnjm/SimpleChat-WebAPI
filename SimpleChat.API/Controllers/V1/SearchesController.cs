@@ -62,7 +62,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<MessageVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public JsonResult Get([FromQuery] string key)
+        public IActionResult Get([FromQuery] string key)
         {
             if(key == null || key == "" || key.Length < 4)
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
@@ -70,8 +70,7 @@ namespace SimpleChat.API.Controllers.V1
 
             var messages = _service.Query().Where(s => s.Text.Contains(key));
             if (messages == null)
-                return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01002),
-                    StatusCodes.Status204NoContent);
+                return NoContent();
 
             var result = _mapper.ProjectTo<MessageVM>(messages).ToList();
 

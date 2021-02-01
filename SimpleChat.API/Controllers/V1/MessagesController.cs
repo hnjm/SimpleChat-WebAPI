@@ -47,7 +47,7 @@ namespace SimpleChat.API.Controllers.V1
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public override async Task<JsonResult> Get()
+        public override async Task<IActionResult> Get()
         {
             await Task.Delay(1);
             return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false),
@@ -69,7 +69,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<MessageVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public virtual JsonResult GetByChatRoomId([FromRoute] Guid id)
+        public virtual IActionResult GetByChatRoomId([FromRoute] Guid id)
         {
             if (id.IsEmptyGuid())
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
@@ -77,8 +77,7 @@ namespace SimpleChat.API.Controllers.V1
 
             var result = _service.GetMessagesByChatRoomId(id);
             if (result == null)
-                return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01002),
-                    StatusCodes.Status204NoContent);
+                return NoContent();
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
         }

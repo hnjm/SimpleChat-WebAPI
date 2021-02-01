@@ -35,14 +35,14 @@ namespace SimpleChat.API.Controllers.V1
         /// Use to get all records
         /// </summary>
         /// <returns>List of typeparam L(BaseVM)</returns>
-        Task<JsonResult> Get();
+        Task<IActionResult> Get();
 
         /// <summary>
         /// To get only one specific record
         /// </summary>
         /// <param name="id">The function needs ID value of which records want by the client</param>
         /// <returns>Record data as typeparam L, or error response</returns>
-        Task<JsonResult> GetById(Guid id);
+        Task<IActionResult> GetById(Guid id);
 
         /// <summary>
         /// To save new record to the DB
@@ -64,7 +64,7 @@ namespace SimpleChat.API.Controllers.V1
         /// </summary>
         /// <param name="id">ID points which record wants to be deleted by client</param>
         /// <returns>APIResultVM with errors or ID value, that depends to the success of delete operation</returns>
-        Task<JsonResult> Delete(Guid id);
+        Task<IActionResult> Delete(Guid id);
     }
 
     /// <summary>
@@ -118,12 +118,11 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<IBaseVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
-        public virtual async Task<JsonResult> Get()
+        public virtual async Task<IActionResult> Get()
         {
             var result = await _service.GetAllAsync();
             if (result == null)
-                return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
-                    StatusCodes.Status204NoContent);
+                return NoContent();
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
         }
@@ -142,7 +141,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BaseVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public virtual async Task<JsonResult> GetById([FromRoute] Guid id)
+        public virtual async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             if (id.IsEmptyGuid())
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
@@ -150,8 +149,7 @@ namespace SimpleChat.API.Controllers.V1
 
             var result = await _service.GetByIdAsync(id);
             if (result == null)
-                return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
-                    StatusCodes.Status204NoContent);
+                return NoContent();
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
         }
@@ -230,7 +228,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public virtual async Task<JsonResult> Delete([FromRoute] Guid id)
+        public virtual async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             if (id.IsEmptyGuid())
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(statusCode: APIStatusCode.ERR01003),
@@ -240,8 +238,7 @@ namespace SimpleChat.API.Controllers.V1
             if (result.ResultIsNotTrue())
                 return new JsonAPIResult(result, StatusCodes.Status409Conflict);
 
-            return new JsonAPIResult(_apiResult.CreateVM(result.RecId, result.ResultIsTrue()),
-                StatusCodes.Status204NoContent);
+            return NoContent();
         }
     }
 

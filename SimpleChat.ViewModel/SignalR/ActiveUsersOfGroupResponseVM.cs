@@ -7,8 +7,9 @@ using SimpleChat.Core.ViewModel;
 
 namespace SimpleChat.ViewModel.SignalR
 {
-    public record SendMessageVM
+    public record ActiveUsersOfGroupResponseVM
     {
-        public string Text { get; set; }
+        public List<Guid> ActiveUsers { get; set; }
+        public string GroupId { get; set; }
     }
 }

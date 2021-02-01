@@ -55,7 +55,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ChatRoomVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public override async Task<JsonResult> Get()
+        public override async Task<IActionResult> Get()
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             if(user == null)
@@ -68,8 +68,7 @@ namespace SimpleChat.API.Controllers.V1
 
             var result = _service.GetByUserId(user.Id);
             if (result == null)
-                return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
-                    StatusCodes.Status204NoContent);
+                return NoContent();
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
         }
@@ -88,7 +87,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Guid>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public JsonResult GetUsers([FromRoute] Guid id)
+        public IActionResult GetUsers([FromRoute] Guid id)
         {
             if (id.IsEmptyGuid())
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
@@ -96,8 +95,7 @@ namespace SimpleChat.API.Controllers.V1
 
             var result = _service.GetUsers(id);
             if (result == null)
-                return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01002),
-                    StatusCodes.Status204NoContent);
+                return NoContent();
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
         }

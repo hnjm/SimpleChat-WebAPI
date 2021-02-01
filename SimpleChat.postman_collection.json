@@ -165,7 +165,7 @@
 							}
 						],
 						"url": {
-							"raw": "https://localhost:5060/api/authentications/IsUserExist?username=user124&email=AdamRobert@outlook.com.tr",
+							"raw": "https://localhost:5060/api/authentications/IsUserExist?username=user1&email=user@test.com",
 							"protocol": "https",
 							"host": [
 								"localhost"
@@ -179,11 +179,11 @@
 							"query": [
 								{
 									"key": "username",
-									"value": "user124"
+									"value": "user1"
 								},
 								{
 									"key": "email",
-									"value": "AdamRobert@outlook.com.tr"
+									"value": "user@test.com"
 								}
 							]
 						}
@@ -204,7 +204,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"UserName\": \"user143534352\",\n\t\"Password\":\"Adam.1234\",\n    \"ConfirmPassword\":\"Adam.1234\",\n\t\"DisplayName\":\"Adam Robert\",\n    \"EMail\": \"AdamRobert@outlook.com.tr\",\n    \"About\": \"\"\n}"
+							"raw": "{\n\t\"UserName\": \"testuser\",\n\t\"Password\":\"Testuser.123456\",\n    \"ConfirmPassword\":\"Testuser.123456\",\n\t\"DisplayName\":\"Test User\",\n    \"EMail\": \"testuser@testuser.com\",\n    \"About\": \"\"\n}"
 						},
 						"url": {
 							"raw": "https://localhost:5060/api/authentications/register",
@@ -236,7 +236,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"UserName\": \"user1\",\n\t\"Password\":\"Adam.1234\"\n}"
+							"raw": "{\n\t\"UserName\": \"user3\",\n\t\"Password\":\"Testuser.2119\"\n}"
 						},
 						"url": {
 							"raw": "https://localhost:5060/api/tokens/create",
@@ -738,7 +738,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"DisplayName\": \"Adam Robert 222\",\r\n    \"About\": \"test\"\r\n}",
+							"raw": "{\r\n    \"DisplayName\": \"TestUser 2\",\r\n    \"About\": \"Someting about me\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

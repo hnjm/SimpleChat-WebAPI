@@ -77,12 +77,11 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<UserListVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public JsonResult Get()
+        public IActionResult Get()
         {
             var result = _service.GetUserList();
             if (result == null)
-                return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01002),
-                    StatusCodes.Status204NoContent);
+                return NoContent();
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
         }
@@ -102,7 +101,7 @@ namespace SimpleChat.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserVM))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public JsonResult GetById([FromRoute] Guid id)
+        public IActionResult GetById([FromRoute] Guid id)
         {
             if (id.IsEmptyGuid())
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
@@ -110,8 +109,7 @@ namespace SimpleChat.API.Controllers.V1
 
             var user = _service.GetById(id);
             if (user == null)
-                return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01002),
-                    StatusCodes.Status204NoContent);
+                return NoContent();
 
             var result = _mapper.Map<UserVM>(user);
 
@@ -125,13 +123,13 @@ namespace SimpleChat.API.Controllers.V1
         /// <param name="model">Values to be updated for the user</param>
         /// <returns>A list of filtered messages</returns>
         /// <response code="400">When KEY parameter is empty or null</response>
-        /// <response code="204">If there is no record which is contains KEY parameter value</response>
+        /// <response code="401">If there is no record which is contains KEY parameter value</response>
         /// <response code="403">If user tries to update to another user</response>
         /// <response code="200">List of messages</response>
         /// <response code="500">Empty payload with HTTP Status Code</response>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(APIResultWithRecVM<IEnumerable<MessageVM>>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -147,12 +145,12 @@ namespace SimpleChat.API.Controllers.V1
             var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
             if(currentUser == null)
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01004),
-                    StatusCodes.Status204NoContent);
+                    StatusCodes.Status401Unauthorized);
 
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null)
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01004),
-                    StatusCodes.Status204NoContent);
+                    StatusCodes.Status401Unauthorized);
 
             if(currentUser.Id != user.Id)
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01007),
