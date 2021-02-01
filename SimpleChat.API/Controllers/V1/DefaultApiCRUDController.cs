@@ -111,10 +111,10 @@ namespace SimpleChat.API.Controllers.V1
         /// To get all records
         /// </summary>
         /// <returns>List of typeparam L(BaseVM)</returns>
-        /// <response code="404">If DB don't have any record</response>
+        /// <response code="204">If DB don't have any record</response>
         /// <response code="200">If any records exist on the DB</response>
         /// <response code="500">Empty payload with HTTP Status Code</response>
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
+        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<IBaseVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
@@ -123,7 +123,7 @@ namespace SimpleChat.API.Controllers.V1
             var result = await _service.GetAllAsync();
             if (result == null)
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
-                    StatusCodes.Status404NotFound);
+                    StatusCodes.Status204NoContent);
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
         }
@@ -134,12 +134,12 @@ namespace SimpleChat.API.Controllers.V1
         /// <param name="id">The function needs ID value of which records want by the client</param>
         /// <returns>Record data as typeparam L, or error response</returns>
         /// <response code="400">When ID parameter is empty-guid or null</response>
-        /// <response code="404">If there is no record with ID which is sent by client</response>
+        /// <response code="204">If there is no record with ID which is sent by client</response>
         /// <response code="200">Data of requested record</response>
         /// <response code="500">Empty payload with HTTP Status Code</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
+        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BaseVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public virtual async Task<JsonResult> GetById([FromRoute] Guid id)
@@ -151,7 +151,7 @@ namespace SimpleChat.API.Controllers.V1
             var result = await _service.GetByIdAsync(id);
             if (result == null)
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
-                    StatusCodes.Status404NotFound);
+                    StatusCodes.Status204NoContent);
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
         }
