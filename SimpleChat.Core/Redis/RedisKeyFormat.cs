@@ -9,6 +9,10 @@ namespace SimpleChat.Core.Redis
     {
         public static string SignalRConnectionKeyFormat = "{hubName}_connection_{id}";
         public static string SignalRGroupKeyFormat = "{hubName}_group_{id}";
+        public static int SignalRGroupKeyIdIndex = 2;
+
+        public static string SignalRKeySeperator = "_";
+
 
         public static string GetKey(Dictionary<string, string> parameters, string keyFormat)
         {
@@ -21,6 +25,11 @@ namespace SimpleChat.Core.Redis
             }
 
             return keyFormat;
+        }
+
+        public static string GetIdFromKey(string key, string seperator, int index)
+        {
+            return !key.IsNullOrEmptyString() && key.Split(seperator).Length == index? key.Split(seperator)[2] : "";
         }
     }
 }
