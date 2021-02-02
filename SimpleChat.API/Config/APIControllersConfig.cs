@@ -1,13 +1,15 @@
 using System;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
+using Newtonsoft.Json;
 namespace SimpleChat.API.Config
 {
     internal static class APIControllersConfig
     {
         internal static void Add(ref IServiceCollection services, IConfiguration configuration)
         {
+            services.AddMvc().AddNewtonsoftJson();
             services.AddControllers(options =>
             {
                 options.Conventions.Add(new GroupingByNamespaceConvention());
@@ -17,9 +19,6 @@ namespace SimpleChat.API.Config
             }).ConfigureApiBehaviorOptions(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
-            }).AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.PropertyNamingPolicy = null;
             });
         }
     }

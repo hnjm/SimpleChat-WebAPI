@@ -76,11 +76,9 @@ namespace SimpleChat.API.Controllers.V1
         /// <returns>Retruns result of DB check as boolen results with the username and email which are searched into the DB</returns>
         /// <response code="400">If userName parameter is null or empty, this is returns</response>
         /// <response code="200">DB query result</response>
-        /// <response code="404">DB query result</response>
         /// <response code="500">Empty payload with HTTP Status Code</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IsUserExistVM))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(IsUserExistVM))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<JsonResult> IsUserExist([FromQuery] string userName, [FromQuery] string eMail)
         {
@@ -104,7 +102,7 @@ namespace SimpleChat.API.Controllers.V1
             if (isUserNameExist || isEmailExist)
                 return new JsonAPIResult(model, StatusCodes.Status200OK);
             else
-                return new JsonAPIResult(model, StatusCodes.Status404NotFound);
+                return new JsonAPIResult(model, StatusCodes.Status200OK);
         }
 
         /// <summary>

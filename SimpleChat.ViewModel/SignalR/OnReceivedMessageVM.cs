@@ -7,8 +7,10 @@ using SimpleChat.Core.ViewModel;
 
 namespace SimpleChat.ViewModel.SignalR
 {
-    public record AddToGroupVM
+    public record OnReceivedMessageVM
     {
+        public Guid SenderId { get; set; }
+        public string Text { get; set; }
         public Guid GroupId { get; set; }
     }
 }

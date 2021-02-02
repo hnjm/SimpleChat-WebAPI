@@ -47,7 +47,7 @@ namespace SimpleChat.API.Controllers.V1
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public override async Task<JsonResult> Get()
+        public override async Task<IActionResult> Get()
         {
             await Task.Delay(1);
             return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false),
@@ -59,17 +59,17 @@ namespace SimpleChat.API.Controllers.V1
         /// </summary>
         /// <param name="id">ID value of the Chat Room</param>
         /// <returns>List of messages for a specific chat room</returns>
-        /// <response code="404">If the chat room doesnt have any message</response>
+        /// <response code="204">If the chat room doesnt have any message</response>
         /// <response code="400">If the Id is empty or null</response>
         /// <response code="200">If any message exist for the chat room on the DB</response>
         /// <response code="500">Empty payload with HTTP Status Code</response>
         [HttpGet]
         [Route("/api/chatrooms/{id}/messages")]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(APIResultVM))]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(APIResultWithRecVM<IEnumerable<MessageVM>>))]
+        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(APIResultVM))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<MessageVM>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public virtual JsonResult GetByChatRoomId([FromRoute] Guid id)
+        public virtual IActionResult GetByChatRoomId([FromRoute] Guid id)
         {
             if (id.IsEmptyGuid())
                 return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01003),
@@ -77,8 +77,7 @@ namespace SimpleChat.API.Controllers.V1
 
             var result = _service.GetMessagesByChatRoomId(id);
             if (result == null)
-                return new JsonAPIResult(_apiResult.CreateVMWithStatusCode(null, false, APIStatusCode.ERR01002),
-                    StatusCodes.Status404NotFound);
+                return NoContent();
 
             return new JsonAPIResult(result, StatusCodes.Status200OK);
         }

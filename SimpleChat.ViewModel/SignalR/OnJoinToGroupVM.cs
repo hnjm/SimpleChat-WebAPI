@@ -7,8 +7,9 @@ using SimpleChat.Core.ViewModel;
 
 namespace SimpleChat.ViewModel.SignalR
 {
-    public record RemoveFromGroupVM
+    public record OnJoinToGroupVM
     {
         public Guid GroupId { get; set; }
+        public Guid UserId { get; set; }
     }
 }

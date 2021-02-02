@@ -7,8 +7,8 @@ using SimpleChat.Core.ViewModel;
 
 namespace SimpleChat.ViewModel.SignalR
 {
-    public record OnDisconnectResponseVM
+    public record OnDisconnectVM
     {
-        public string ConnectionId { get; set; }
+        public Guid UserId { get; set; }
     }
 }

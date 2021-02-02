@@ -8,6 +8,7 @@ using SimpleChat.API.Config;
 using SimpleChat.Core;
 using SimpleChat.Core.Helper;
 using SimpleChat.Core.Redis;
+using SimpleChat.Core.Serializer;
 using SimpleChat.Core.Validation;
 using SimpleChat.Data;
 using SimpleChat.Data.Service;
@@ -27,9 +28,9 @@ namespace SimpleChat.API.SignalR
     {
         Task OnConnectedAsync();
         Task OnDisconnectedAsync(Exception exception);
-        Task AddToGroup(AddToGroupVM data);
-        Task RemoveFromGroup(RemoveFromGroupVM data);
-        Task SendMessage(SendMessageVM data);
+        Task JoinToGroup(string groupId);
+        Task RemoveFromGroup(string groupId);
+        Task SendMessage(string data);
         Task GetActiveUsers();
         Task GetActiveUsersOfGroup();
         Task CheckHub();
@@ -68,29 +69,46 @@ namespace SimpleChat.API.SignalR
 
         public override async Task OnConnectedAsync()
         {
-            var userIdStr = Context.GetHttpContext().Request.Query["userId"].FirstOrDefault();//GetRequestBody<OnConnectVM>();
+            var userIdStr = Context.GetHttpContext().Request.Query["userId"].FirstOrDefault();
             Guid.TryParse(userIdStr, out Guid userId);
-            if (userId.IsEmptyGuid())//data.Equals(default(OnConnectVM)))
+            if (userId.IsEmptyGuid())
             {
-                await base.OnDisconnectedAsync(new Exception(APIStatusCode.ERR04001));
+                this.Context.Abort();
                 return;
+            }
+
+            //if the user exist on the cache, remove the user first
+            var connections = _connectionCache.GetAll(searchPattern: "ChatHub_connection_*").ToList();
+            var connectionOfCurrentUser = connections.Where(a => a.UserId == userId).FirstOrDefault();
+            if (connectionOfCurrentUser != null)
+            {
+                if (!connectionOfCurrentUser.GroupId.IsNullOrEmptyGuid())
+                    RemoveUserFromGroup(connectionOfCurrentUser.GroupId.Value, ref connectionOfCurrentUser);
+
+                DeleteConnectionFromCache(connectionOfCurrentUser.Id);
             }
 
             var connectionCachingResult = _connectionCache.Insert(new SignalRConnection()
             {
                 Id = GetKeyForConnection(),
-                UserId = userId, //data.UserId,
+                UserId = userId,
                 GroupId = null
             });
             if (!connectionCachingResult.IsSuccessful)
             {
                 var e = new Exception(APIStatusCode.ERR04002);
                 SentrySdk.CaptureException(e);
-                await base.OnDisconnectedAsync(e);
+                this.Context.Abort();
                 return;
             }
 
-            await Clients.All.SendAsync("OnConnect", new OnConnectVM() { UserId = userId });
+            await Clients.All.SendAsync("OnConnect", Newtonsoft.Json.JsonConvert.SerializeObject(new OnConnectVM()
+            {
+                UserId = userId
+            }, new Newtonsoft.Json.JsonSerializerSettings()
+            {
+                ContractResolver = new LowercaseContractResolver()
+            }));
 
             await base.OnConnectedAsync();
         }
@@ -100,12 +118,7 @@ namespace SimpleChat.API.SignalR
             var connection = Connection;
             if (!connection.Equals(default(SignalRConnection)))
             {
-                var deleteResult = _connectionCache.Delete(GetKeyForConnection());
-                if (!deleteResult.IsSuccessful)
-                {
-                    var e = new Exception(APIStatusCode.ERR04004);
-                    SentrySdk.CaptureException(e);
-                }
+                DeleteConnectionFromCache(GetKeyForConnection());
 
                 if (!connection.GroupId.IsNullOrEmptyGuid())
                 {
@@ -118,36 +131,38 @@ namespace SimpleChat.API.SignalR
                 }
             }
 
-            await Clients.All.SendAsync("OnDisconnect", new OnDisconnectResponseVM()
+            await Clients.All.SendAsync("OnDisconnect", Newtonsoft.Json.JsonConvert.SerializeObject(new OnDisconnectVM()
             {
-                ConnectionId = Context.ConnectionId
-            });
+                UserId = connection.UserId
+            }, new Newtonsoft.Json.JsonSerializerSettings()
+            {
+                ContractResolver = new LowercaseContractResolver()
+            }));
 
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task AddToGroup(AddToGroupVM data)
+        public async Task JoinToGroup(string groupId)
         {
+            Guid.TryParse(groupId, out Guid groupIdGuid);
             var connection = Connection;
             if (!connection.Equals(default(SignalRConnection)))
             {
                 //Remove the connection from existing group
                 if (!connection.GroupId.IsNullOrEmptyGuid())
                 {
-                    await RemoveFromGroup(new RemoveFromGroupVM()
-                    {
-                        GroupId = connection.GroupId.Value
-                    });
+                    await RemoveFromGroup(connection.GroupId.ToString());
                 }
 
                 //Check is the Chat Room exist on database
-                if (!IsGroupExistOnDatabase(data.GroupId))
+                if (!IsGroupExistOnDatabase(groupIdGuid))
                     return;
 
-                var group = _groupCache.GetById(GetKeyForGroup(data.GroupId));
-                if (group.Equals(default(SignalRGroup)))
+                var group = _groupCache.GetById(GetKeyForGroup(groupIdGuid));
+                if (group == null || group.Equals(default(SignalRGroup)))
                 {
-                    group.Id = GetKeyForGroup(data.GroupId);
+                    group = new SignalRGroup();
+                    group.Id = GetKeyForGroup(groupIdGuid);
                     group.ConnectedUsers = new List<Guid>() { connection.UserId };
                 }
                 else
@@ -156,7 +171,7 @@ namespace SimpleChat.API.SignalR
                 }
 
                 //Update connection groupId field
-                connection.GroupId = data.GroupId;
+                connection.GroupId = groupIdGuid;
 
                 //update connection on cache
                 var connectionUpdateResult = _connectionCache.Insert(connection);
@@ -175,62 +190,48 @@ namespace SimpleChat.API.SignalR
                 }
 
                 //send notification to members of group
-                await Clients.Group(data.GroupId.ToString()).SendAsync("OnJoinToGroup", new OnJoinToGroup()
+                await Clients.Group(groupIdGuid.ToString()).SendAsync("OnJoinToGroup", Newtonsoft.Json.JsonConvert.SerializeObject(new OnJoinToGroupVM()
                 {
-                    ConnectionId = Context.ConnectionId
-                });
+                    GroupId = groupIdGuid,
+                    UserId = connection.UserId
+                }, new Newtonsoft.Json.JsonSerializerSettings()
+                {
+                    ContractResolver = new LowercaseContractResolver()
+                }));
 
-                await Groups.AddToGroupAsync(Context.ConnectionId, data.GroupId.ToString());
+                await Groups.AddToGroupAsync(Context.ConnectionId, groupIdGuid.ToString());
             }
         }
 
-        public async Task RemoveFromGroup(RemoveFromGroupVM data)
+        public async Task RemoveFromGroup(string groupId)
         {
+            Guid.TryParse(groupId, out Guid groupIdGuid);
             var connection = Connection;
             if (!connection.Equals(default(SignalRConnection)))
             {
                 //Check is the Chat Room exist on database
-                if (!IsGroupExistOnDatabase(data.GroupId))
+                if (!IsGroupExistOnDatabase(groupIdGuid))
                     return;
 
-                //Get cached group data
-                var group = _groupCache.GetById(GetKeyForGroup(data.GroupId));
-                if (group.Equals(default(SignalRGroup)))
-                {
-                    SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04007));
+                var result = RemoveUserFromGroup(groupIdGuid, ref connection);
+                if (!result)
                     return;
-                }
-
-                group.ConnectedUsers.Remove(connection.UserId);
-                connection.GroupId = null;
-
-                //update connection on cache
-                var connectionUpdateResult = _connectionCache.Insert(connection);
-                if (!connectionUpdateResult.IsSuccessful)
-                {
-                    SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04002));
-                    return;
-                }
-
-                //update group on cache
-                var groupUpdateResult = _groupCache.Insert(group);
-                if (!groupUpdateResult.IsSuccessful)
-                {
-                    SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04003));
-                    return;
-                }
 
                 //Send notification to members of group
-                await Clients.Group(data.GroupId.ToString()).SendAsync("OnLeaveFromGroup", new OnLeaveFromGroup()
+                await Clients.Group(groupIdGuid.ToString()).SendAsync("OnLeaveFromGroup", Newtonsoft.Json.JsonConvert.SerializeObject(new OnLeaveFromGroupVM()
                 {
-                    ConnectionId = Context.ConnectionId
-                });
+                    GroupId = groupIdGuid,
+                    UserId = connection.UserId
+                }, new Newtonsoft.Json.JsonSerializerSettings()
+                {
+                    ContractResolver = new LowercaseContractResolver()
+                }));
 
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, data.GroupId.ToString());
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupIdGuid.ToString());
             }
         }
 
-        public async Task SendMessage(SendMessageVM data)
+        public async Task SendMessage(string text)
         {
             var connection = Connection;
             if (!connection.Equals(default(SignalRConnection)) && !connection.GroupId.IsNullOrEmptyGuid())
@@ -245,15 +246,24 @@ namespace SimpleChat.API.SignalR
                 var dbResult = await _service.AddAsync(new MessageAddVM()
                 {
                     ChatRoomId = connection.GroupId.Value,
-                    Text = data.Text
+                    Text = text
                 }, connection.UserId);
                 if (dbResult.ResultIsNotTrue())
                 {
                     SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04008));
                     return;
                 }
-
-                await Clients.Group(connection.GroupId.Value.ToString()).SendAsync("ReceiveMessage", data.Text);
+                var result = new OnReceivedMessageVM()
+                {
+                    GroupId = connection.GroupId.Value,
+                    SenderId = connection.UserId,
+                    Text = text
+                };
+                await Clients.Group(connection.GroupId.Value.ToString()).SendAsync("ReceiveMessage",
+                Newtonsoft.Json.JsonConvert.SerializeObject(result, new Newtonsoft.Json.JsonSerializerSettings()
+                {
+                    ContractResolver = new LowercaseContractResolver()
+                }));
             }
         }
 
@@ -266,10 +276,15 @@ namespace SimpleChat.API.SignalR
 
                 if (connections.Any())
                 {
-                    await Clients.Caller.SendAsync("ReceiveActiveUsers", new ActiveUsersResponseVM()
+                    ActiveUsersResponseVM result = new ActiveUsersResponseVM()
                     {
                         ActiveUsers = connections.ToList()
-                    });
+                    };
+
+                    await Clients.Caller.SendAsync("ReceiveActiveUsers", Newtonsoft.Json.JsonConvert.SerializeObject(result, new Newtonsoft.Json.JsonSerializerSettings()
+                    {
+                        ContractResolver = new LowercaseContractResolver()
+                    }));
                 }
             }
         }
@@ -286,7 +301,16 @@ namespace SimpleChat.API.SignalR
                     return;
                 }
 
-                await Clients.Caller.SendAsync("ReceiveActiveUsersOfGroup", group.ConnectedUsers);
+                ActiveUsersOfGroupResponseVM result = new ActiveUsersOfGroupResponseVM()
+                {
+                    ActiveUsers = group.ConnectedUsers,
+                    GroupId = RedisKeyFormat.GetIdFromKey(group.Id, RedisKeyFormat.SignalRKeySeperator, 2)
+                };
+
+                await Clients.Caller.SendAsync("ReceiveActiveUsersOfGroup", Newtonsoft.Json.JsonConvert.SerializeObject(result, new Newtonsoft.Json.JsonSerializerSettings()
+                {
+                    ContractResolver = new LowercaseContractResolver()
+                }));
             }
         }
 
@@ -361,6 +385,47 @@ namespace SimpleChat.API.SignalR
             }
 
             return isGroupExist;
+        }
+
+        private void DeleteConnectionFromCache(string key)
+        {
+            var deleteResult = _connectionCache.Delete(key);
+            if (!deleteResult.IsSuccessful)
+            {
+                var e = new Exception(APIStatusCode.ERR04004);
+                SentrySdk.CaptureException(e);
+            }
+        }
+
+        private bool RemoveUserFromGroup(Guid groupId, ref SignalRConnection connection)
+        {
+            var group = _groupCache.GetById(GetKeyForGroup(groupId));
+            if (group.Equals(default(SignalRGroup)))
+            {
+                SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04007));
+                return false;
+            }
+
+            group.ConnectedUsers.Remove(connection.UserId);
+            connection.GroupId = null;
+
+            //update connection on cache
+            var connectionUpdateResult = _connectionCache.Insert(connection);
+            if (!connectionUpdateResult.IsSuccessful)
+            {
+                SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04002));
+                return false;
+            }
+
+            //update group on cache
+            var groupUpdateResult = _groupCache.Insert(group);
+            if (!groupUpdateResult.IsSuccessful)
+            {
+                SentrySdk.CaptureException(new Exception(APIStatusCode.ERR04003));
+                return false;
+            }
+
+            return true;
         }
 
         #endregion
