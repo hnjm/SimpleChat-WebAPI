@@ -8,6 +8,7 @@ using SimpleChat.API.Config;
 using SimpleChat.Core;
 using SimpleChat.Core.Helper;
 using SimpleChat.Core.Redis;
+using SimpleChat.Core.Serializer;
 using SimpleChat.Core.Validation;
 using SimpleChat.Data;
 using SimpleChat.Data.Service;
@@ -101,9 +102,12 @@ namespace SimpleChat.API.SignalR
                 return;
             }
 
-            await Clients.All.SendAsync("OnConnect", JsonSerializer.Serialize(new OnConnectVM()
+            await Clients.All.SendAsync("OnConnect", Newtonsoft.Json.JsonConvert.SerializeObject(new OnConnectVM()
             {
                 UserId = userId
+            }, new Newtonsoft.Json.JsonSerializerSettings()
+            {
+                ContractResolver = new LowercaseContractResolver()
             }));
 
             await base.OnConnectedAsync();
@@ -127,9 +131,12 @@ namespace SimpleChat.API.SignalR
                 }
             }
 
-            await Clients.All.SendAsync("OnDisconnect", JsonSerializer.Serialize(new OnDisconnectVM()
+            await Clients.All.SendAsync("OnDisconnect", Newtonsoft.Json.JsonConvert.SerializeObject(new OnDisconnectVM()
             {
                 UserId = connection.UserId
+            }, new Newtonsoft.Json.JsonSerializerSettings()
+            {
+                ContractResolver = new LowercaseContractResolver()
             }));
 
             await base.OnDisconnectedAsync(exception);
@@ -183,10 +190,13 @@ namespace SimpleChat.API.SignalR
                 }
 
                 //send notification to members of group
-                await Clients.Group(groupIdGuid.ToString()).SendAsync("OnJoinToGroup", JsonSerializer.Serialize(new OnJoinToGroupVM()
+                await Clients.Group(groupIdGuid.ToString()).SendAsync("OnJoinToGroup", Newtonsoft.Json.JsonConvert.SerializeObject(new OnJoinToGroupVM()
                 {
                     GroupId = groupIdGuid,
                     UserId = connection.UserId
+                }, new Newtonsoft.Json.JsonSerializerSettings()
+                {
+                    ContractResolver = new LowercaseContractResolver()
                 }));
 
                 await Groups.AddToGroupAsync(Context.ConnectionId, groupIdGuid.ToString());
@@ -208,10 +218,13 @@ namespace SimpleChat.API.SignalR
                     return;
 
                 //Send notification to members of group
-                await Clients.Group(groupIdGuid.ToString()).SendAsync("OnLeaveFromGroup", JsonSerializer.Serialize(new OnLeaveFromGroupVM()
+                await Clients.Group(groupIdGuid.ToString()).SendAsync("OnLeaveFromGroup", Newtonsoft.Json.JsonConvert.SerializeObject(new OnLeaveFromGroupVM()
                 {
                     GroupId = groupIdGuid,
                     UserId = connection.UserId
+                }, new Newtonsoft.Json.JsonSerializerSettings()
+                {
+                    ContractResolver = new LowercaseContractResolver()
                 }));
 
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupIdGuid.ToString());
@@ -246,7 +259,11 @@ namespace SimpleChat.API.SignalR
                     SenderId = connection.UserId,
                     Text = text
                 };
-                await Clients.Group(connection.GroupId.Value.ToString()).SendAsync("ReceiveMessage", JsonSerializer.Serialize(result));
+                await Clients.Group(connection.GroupId.Value.ToString()).SendAsync("ReceiveMessage",
+                Newtonsoft.Json.JsonConvert.SerializeObject(result, new Newtonsoft.Json.JsonSerializerSettings()
+                {
+                    ContractResolver = new LowercaseContractResolver()
+                }));
             }
         }
 
@@ -264,7 +281,10 @@ namespace SimpleChat.API.SignalR
                         ActiveUsers = connections.ToList()
                     };
 
-                    await Clients.Caller.SendAsync("ReceiveActiveUsers", JsonSerializer.Serialize(result));
+                    await Clients.Caller.SendAsync("ReceiveActiveUsers", Newtonsoft.Json.JsonConvert.SerializeObject(result, new Newtonsoft.Json.JsonSerializerSettings()
+                    {
+                        ContractResolver = new LowercaseContractResolver()
+                    }));
                 }
             }
         }
@@ -287,7 +307,10 @@ namespace SimpleChat.API.SignalR
                     GroupId = RedisKeyFormat.GetIdFromKey(group.Id, RedisKeyFormat.SignalRKeySeperator, 2)
                 };
 
-                await Clients.Caller.SendAsync("ReceiveActiveUsersOfGroup", JsonSerializer.Serialize(result));
+                await Clients.Caller.SendAsync("ReceiveActiveUsersOfGroup", Newtonsoft.Json.JsonConvert.SerializeObject(result, new Newtonsoft.Json.JsonSerializerSettings()
+                {
+                    ContractResolver = new LowercaseContractResolver()
+                }));
             }
         }
 
